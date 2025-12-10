@@ -1,0 +1,242 @@
+﻿@using DashBoard.Models.Stats
+@using Microsoft.AspNetCore.Http;
+@{
+	ViewData["Title"] = "Estatísticas";
+	Layout = "_LayoutDashboard";
+}
+@model StatsModelo
+
+<asp:Content ID="Inicio" ContentPlaceHolderID="Inicio" runat="server">
+	<script src="https://www.gstatic.com/charts/loader.js"></script>
+	<link rel="stylesheet" href="~/css/dashboardPanels/inicio.css" asp-append-version="true">
+</asp:Content>
+<div class="display__layout">
+	<div class="stat__layout">
+		<h3>Meta</h3>
+		<div id="meta--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__meta--desc">
+			@{
+				var metaAtual = int.Parse((string)ViewData["META"]!);
+				var percentual = metaAtual > 0 ? (Model.QuantidadeDeCadastro * 100) / metaAtual : 0;
+				var faltante = metaAtual - Model.QuantidadeDeCadastro;
+				if (faltante < 0)
+					faltante = 0;
+			}
+			@Html.Hidden("StatsMeta_ValorMeta", metaAtual)
+			@Html.Hidden("StatsMeta_Meta_Quantidade", Model.QuantidadeDeCadastro)
+			@Html.Hidden("StatsMeta_Percentual", percentual)
+			@Html.Hidden("MetaFaltante", faltante)
+			<div class="desc-txt meta--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsMeta_Quantidade"></div>Quantidade de cadastros:&nbsp;<span> @Model.QuantidadeDeCadastro</span>
+			</div>
+			<div class="desc-txt meta--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsMeta_Meta"></div>Meta atual:&nbsp;<span> @metaAtual </span>
+			</div>
+			<div class="desc-txt meta--desc-txt">
+				<div class="stat--desc-icon"></div>Quantidade faltante:&nbsp;<span> @faltante</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>Gênero</h3>
+		<div id="genero--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__genero--desc">
+			@Html.HiddenFor(x => x.StatsGenero.Masculino.Quantidade)
+			@Html.HiddenFor(x => x.StatsGenero.Feminino.Quantidade)
+			@Html.HiddenFor(x => x.StatsGenero.Outros.Quantidade)
+			@Html.HiddenFor(x => x.StatsGenero.NaoDeclarado.Quantidade)
+			<div class="desc-txt genero--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsGenero_Masculino"></div>Masculino:&nbsp;<span>
+					@Model.StatsGenero.Masculino.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt genero--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsGenero_Feminino"></div>Feminino:&nbsp;<span>
+					@Model.StatsGenero.Feminino.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt genero--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsGenero_Outros"></div>Outros:&nbsp;<span>
+					@Model.StatsGenero.Outros.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt genero--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsGenero_NaoDeclarado"></div>Não declarados:&nbsp;<span>
+					@Model.StatsGenero.NaoDeclarado.Quantidade
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>Renda</h3>
+		<div id="renda--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__renda--desc">
+			@Html.HiddenFor(x => x.StatsRenda.Maior_4_mil.Quantidade)
+			@Html.HiddenFor(x => x.StatsRenda.Maior_3_Menor_4_mil.Quantidade)
+			@Html.HiddenFor(x => x.StatsRenda.Maior_2_Menor_3_mil.Quantidade)
+			@Html.HiddenFor(x => x.StatsRenda.De_1_Menor_2_mil.Quantidade)
+			@Html.HiddenFor(x => x.StatsRenda.NaoDeclarado.Quantidade)
+			<div class="desc-txt renda--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsRenda_Maior_4_mil"></div>Maior que R$4000,00:&nbsp;<span>
+					@Model.StatsRenda.Maior_4_mil.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt renda--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsRenda_Maior_3_Menor_4_mil"></div>Entre R$3000,00 a R$4000,00:&nbsp;<span>
+					@Model.StatsRenda.Maior_3_Menor_4_mil.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt renda--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsRenda_Maior_2_Menor_3_mil"></div>Entre R$2000,00 a R$3000,00:&nbsp;<span>
+					@Model.StatsRenda.Maior_2_Menor_3_mil.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt renda--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsRenda_De_1_Menor_2_mil"></div>Entre R$1000,00 a R$2000,00:&nbsp;<span>
+					@Model.StatsRenda.De_1_Menor_2_mil.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt renda--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsRenda_NaoDeclarado"></div>Não declarados:&nbsp;<span>
+					@Model.StatsRenda.NaoDeclarado.Quantidade
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>FGTS</h3>
+		<div id="fgts--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__fgts--desc">
+			@Html.HiddenFor(x => x.StatsFGTS.Possui.Quantidade)
+			@Html.HiddenFor(x => x.StatsFGTS.NaoPossui.Quantidade)
+			@Html.HiddenFor(x => x.StatsFGTS.NaoDeclarado.Quantidade)
+			<div class="desc-txt fgts--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsFGTS_Possui"></div>Possuí:&nbsp;<span>
+					@Model.StatsFGTS.Possui.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt fgts--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsFGTS_NaoPossui"></div>Não possuí:&nbsp;<span>
+					@Model.StatsFGTS.NaoPossui.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt fgts--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsFGTS_NaoDeclarado"></div>Não declarados:&nbsp;<span>
+					@Model.StatsFGTS.NaoDeclarado.Quantidade
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>Idade</h3>
+		<div id="idade--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__idade--desc">
+			@Html.HiddenFor(x => x.StatsIdade.Maior_55_anos.Quantidade)
+			@Html.HiddenFor(x => x.StatsIdade.Entre_36_55_anos.Quantidade)
+			@Html.HiddenFor(x => x.StatsIdade.Entre_26_35_anos.Quantidade)
+			@Html.HiddenFor(x => x.StatsIdade.Entre_19_25_anos.Quantidade)
+			@Html.HiddenFor(x => x.StatsIdade.Ate_18_Anos.Quantidade)
+			@Html.HiddenFor(x => x.StatsIdade.NaoDeclarado.Quantidade)
+			<div class="desc-txt idade--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsIdade_Maior_55_anos"></div>Depois de 2000:&nbsp;<span>
+					@Model.StatsIdade.Maior_55_anos.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt idade--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsIdade_Entre_36_55_anos"></div>Entre 1990 e 2000:&nbsp;<span>
+					@Model.StatsIdade.Entre_36_55_anos.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt idade--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsIdade_Entre_26_35_anos"></div>Entre 1980 e 1990:&nbsp;<span>
+					@Model.StatsIdade.Entre_26_35_anos.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt idade--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsIdade_Entre_19_25_anos"></div>Entre 1970 e 1980:&nbsp;<span>
+					@Model.StatsIdade.Entre_19_25_anos.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt idade--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsIdade_Ate_18_Anos"></div>Antes de 1970:&nbsp;<span>
+					@Model.StatsIdade.Ate_18_Anos.Quantidade
+				</span>
+			</div>
+			<div class="desc-txt idade--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsIdade_NaoDeclarado"></div>Não declarados:&nbsp;<span>
+					@Model.StatsIdade.NaoDeclarado.Quantidade
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>Estado Civil</h3>
+		<div id="estadoCivil--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__civil--desc">
+			@Html.HiddenFor(x => x.StatsEstadoCivil.Casado.Quantidade)
+			@Html.HiddenFor(x => x.StatsEstadoCivil.Solteiro.Quantidade)
+			@Html.HiddenFor(x => x.StatsEstadoCivil.Divorciado.Quantidade)
+			@Html.HiddenFor(x => x.StatsEstadoCivil.Viuvo.Quantidade)
+			@Html.HiddenFor(x => x.StatsEstadoCivil.NaoDeclarado.Quantidade)
+			<div class="desc-txt civil--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsEstadoCivil_Casado"></div>Casados:&nbsp;
+				<span>@Model.StatsEstadoCivil.Casado.Quantidade</span>
+			</div>
+			<div class="desc-txt civil--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsEstadoCivil_Solteiro"></div>Solteiros:&nbsp;
+				<span>@Model.StatsEstadoCivil.Solteiro.Quantidade</span>
+			</div>
+			<div class="desc-txt civil--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsEstadoCivil_Divorciado"></div>Divorciados:&nbsp;
+				<span>@Model.StatsEstadoCivil.Divorciado.Quantidade</span>
+			</div>
+			<div class="desc-txt civil--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsEstadoCivil_Viuvo"></div>Viúvos:&nbsp;
+				<span>@Model.StatsEstadoCivil.Viuvo.Quantidade</span>
+			</div>
+			<div class="desc-txt civil--desc-txt">
+				<div class="stat--desc-icon" id="icon_StatsEstadoCivil_NaoDeclarado"></div>Não declarados:&nbsp;
+				<span>
+					@Model.StatsEstadoCivil.NaoDeclarado.Quantidade
+				</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>Estados</h3>
+		<div id="estados--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__estados--desc">
+			@{
+				var declarados = Model.StatsEstadosCidades.QuantidadeDeCadastro - Model.StatsEstadosCidades.EstadosNaoDeclarados.Quantidade;
+			}
+			<div class="desc-txt meta--desc-txt">
+				<div class="stat--desc-icon" id="icon_estados_declarados"></div><span>Declarados: @declarados</span>
+			</div>
+			<div class="desc-txt meta--desc-txt">
+				<div class="stat--desc-icon"></div><span>Não Declarados: @Model.StatsEstadosCidades.EstadosNaoDeclarados.Quantidade</span>
+			</div>
+		</div>
+	</div>
+	<div class="stat__layout">
+		<h3>Cadastros</h3>
+		<div id="cadastros--grafico" class="bg-grafico-stats">
+		</div>
+		<div class="stat__cadastros--desc">
+			<select name="periodo" class="select__periodo" id="periodo__cadastros--grafico">
+				<option value="3" selected>Trimestre</option>
+				<option value="6">Semestre</option>
+				<option value="12">1 ano</option>
+				<option value="24">2 anos</option>
+				<option value="36">3 anos</option>
+			</select>
+		</div>
+	</div>
+</div>
+<partial name="fn.Inicio" />

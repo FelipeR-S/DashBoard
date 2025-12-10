@@ -1,0 +1,95 @@
+﻿@using DashBoard.Models.Enums
+@using Newtonsoft.Json;
+@{
+	ViewData["Title"] = "Enviar E-mail";
+	Layout = "_LayoutDashboard";
+	var templates = ViewData["Templates"] as Dictionary<string, string>;
+	var permissoes = Context.Session.GetString("PermissoesCache");
+	var lista = permissoes != null
+		? JsonConvert.DeserializeObject<List<Permissoes>>(permissoes)
+		: new List<Permissoes>();
+	var permissao = lista?.FirstOrDefault(x => x.Atividade == DashBoard.Models.Enums.Atividade.Emails);
+	ViewData["Permissao"] = permissao;
+}
+@model List<string>
+<asp:Content ID="EnviarEmails" ContentPlaceHolderID="EnviarEmails" runat="server">
+	<link rel="stylesheet" href="~/css/dashboardPanels/emails.css" asp-append-version="true">
+</asp:Content>
+<script>
+	var listaEmails = [];
+</script>
+<form method="post"></form>
+<div class="display__layout">
+	<h1>Disparar Emails</h1>
+	@if (permissao is not null && permissao.Editar)
+	{
+		<div class="emails__layout">
+			<div class="emails__options-layout">
+				<span>Enviar para:</span>
+				<select class="emails__select emails__options-envia">
+					@if (Model is not null && Model.Any())
+					{
+						<option value="@((int)TipoEmail.Selecionados)">@Model.Count selecionado(s)</option>
+					}
+					<option value="@((int)TipoEmail.LandingPage)">Cadastro via landingPage</option>
+					<option value="@((int)TipoEmail.Newsletter)">Newsletter</option>
+				</select>
+			</div>
+			<div class="emails__assunto"><span>Assunto: </span><input class="emails__select" id="AssuntoEmail" type="text"></div>
+			<button class="template--setup-btn emails__enviar" onclick="ControlPanel.EnviarEmails()">Enviar</button>
+			<button class="template--setup-btn emails__info" onclick="ControlPanel.Info()">Info</button>
+		</div>		
+	}
+	<div class="emails__layout">
+		<select id="templates" class="emails__select emails__options-template" onchange="Template.ShowTextTemplate(this)">
+			<option value="">Selecione...</option>
+			@if (templates is not null && templates.Count() > 0)
+			{
+				foreach (var item in templates)
+				{
+					<option value="@item.Key">@item.Value</option>
+				}
+			}
+		</select>
+		@if (permissao is not null && permissao.Salvar)
+		{
+			<button type="button" class="template--setup-btn emails__upload-template" onclick="Template.InsereTemplate()">Inserir template</button>
+			<button type="button" class="template--setup-btn emails__save-template" onclick="Template.SaveTemplate()">Salvar Alterações</button>			
+		}
+	</div>
+	<div class="emails__control--panel">
+		<div class="control--panel__item">
+			<button type="button" class="panel--btn top" onclick="ControlPanel.Position(true)">Topo <i class="fa-solid fa-caret-up"></i></button>
+			<button type="button" class="panel--btn bottom" ControlPanel.Position(false)">Baixo <i class="fa-sharp fa-solid fa-caret-down"></i></button>
+		</div>
+		<div class="control--panel__item">
+			<button type="button" class="panel--btn plus" onclick="ControlPanel.FontSize(true)">A<i class="fa-solid fa-caret-up"></i></button>
+			<button type="button" class="panel--btn minus" onclick="ControlPanel.FontSize(false)">A<i class="fa-sharp fa-solid fa-caret-down"></i></button>
+		</div>
+		<div class="control--panel__item">
+			<div>
+				<button type="button" class="panel--btn-tema" aria-checked="false" id="btnThemaHtml" onclick="ControlPanel.ChangeTema(this)">
+					<div class="btn-circle"></div>
+				</button>
+			</div>
+		</div>
+		<div class="control--panel__item">
+			<button type="button" class="panel--btn" onclick="ControlPanel.Update()"><i class="fa-sharp fa-solid fa-arrow-rotate-right"></i></button>
+		</div>
+	</div>
+	<div class="emails__panel-layout">
+		<div class="emails__edit--template" id="editor"></div>
+		<button type="button" class="emails__expand--panel" aria-checked="false" onclick="ControlPanel.ExpandBtn(this)">
+			<i data-hidden="false"
+			   class="open fa-solid fa-up-right-and-down-left-from-center"></i><i data-hidden="true" class=" close fa-solid fa-down-left-and-up-right-to-center"></i>
+		</button>
+	</div>
+	<div class="emails__panel-layout">
+		<div class="emails__show--template" contentEditable="true"></div>
+		<button type="button" class="emails__expand--panel" aria-checked="false" onclick="ControlPanel.ExpandBtn(this)">
+			<i data-hidden="false"
+			   class="open fa-solid fa-up-right-and-down-left-from-center"></i><i data-hidden="true" class="close fa-solid fa-down-left-and-up-right-to-center"></i>
+		</button>
+	</div>
+</div>
+<partial name="fn.Emails" />

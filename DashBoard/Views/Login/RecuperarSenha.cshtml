@@ -1,0 +1,73 @@
+﻿@model User
+@{
+    ViewData["Title"] = "Recuperar senha";
+    Layout = "_LayoutLandingpage";
+    var mensagemRecupera = TempData["RespostaRecupera"];
+}
+<asp:Content ID="LoginJS" ContentPlaceHolderID="LoginJS" runat="server">
+    <link rel="stylesheet" href="~/css/login.css" asp-append-version="true">
+</asp:Content>
+<div class="login-layout">
+    <div class="login-form">
+        <form asp-action="Recuperar" id="formAlterarSenha" method="post">
+            <input type="hidden" asp-for="@Model.Email" />
+            <input type="hidden" asp-for="@Model.TokenRenovacao" />
+            <h3>Recuperar</h3>
+            <p class="erro-login">@mensagemRecupera</p>
+            <div class="form-group-login">
+                <label for="usuario">E-mail:</label>
+                <span>@Model.Email</span>
+            </div>
+            <div class="form-group-login">
+                <label for="senha">Senha<b>*</b></label>
+                <input type="password"
+                       name="senha"
+                       autocomplete="current-password"
+                       minlength="8" maxlength="20"
+                       required
+                       asp-for="@Model.Senha"
+                       onkeyup="InputSenha(this)"
+                       title="A senha deve ter no mínimo 6 caracteres, incluindo letra minúscula, maiúscula, número e caractere especial.">
+                <i class="fa-regular fa-eye show-password" data-show="false"></i>
+                <i class="fa-solid fa-check check"></i>
+                <i class="fa-solid fa-xmark check"></i>
+            </div>
+            <span class="aviso" data-hidden="true">A senha deve ter no mínimo 6 caracteres, incluindo letra minúscula, maiúscula, número e caractere especial.</span>
+            <div class="form-group-login">
+                <label for="SenhaConfirmar">Senha Confirmar<b>*</b></label>
+                <input type="password"
+                       name="SenhaConfirmar"
+                       autocomplete="current-password"
+                       minlength="5" maxlength="20"
+                       required
+                       asp-for="@Model.SenhaConfirmar"
+                       onkeyup="InputSenhaConparar(this)"
+                       title="A senha deve ter no mínimo 6 caracteres, incluindo letra minúscula, maiúscula, número e caractere especial.">
+                <i class="fa-regular fa-eye show-password" data-show="false"></i>
+                <i class="fa-solid fa-check check"></i>
+                <i class="fa-solid fa-xmark check"></i>
+            </div>
+            <span class="aviso" data-hidden="true">Senhas não correspondem</span>
+            <div class="buttons-recupera">
+                <button type="button" class="btnVoltarRecuperar" onclick="location.href='@Url.Action("Index", "Login")'">Voltar ao login</button>
+                <button type="submit" class="envia-recupera">
+                    <i class="fa-solid fa-circle-notch spin" data-hidden="true"></i>
+                    <span>Alterar</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+<svg class="waves" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 24 150 28"
+     preserveAspectRatio="none" shape-rendering="auto">
+    <defs>
+        <path id="gentle-wave" d="M-160 44c30 0 58-18 88-18s 58 18 88 18 58-18 88-18 58 18 88 18 v44h-352z" />
+    </defs>
+    <g class="parallax">
+        <use xlink:href="#gentle-wave" x="48" y="0" fill="rgba(255,255,255,0.7" />
+        <use xlink:href="#gentle-wave" x="48" y="3" fill="rgba(255,255,255,0.5)" />
+        <use xlink:href="#gentle-wave" x="48" y="5" fill="rgba(255,255,255,0.3)" />
+        <use xlink:href="#gentle-wave" x="48" y="7" fill="#fff" />
+    </g>
+</svg>
+<script src="~/js/login.js" asp-append-version="true"></script>

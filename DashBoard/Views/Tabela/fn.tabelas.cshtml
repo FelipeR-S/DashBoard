@@ -1,0 +1,332 @@
+﻿<script>
+    const divTabela = document.getElementById("tabela-clientes");
+    const divFiltroPaginador = document.getElementById("tabela-filtro-paginador");
+    const controles = {
+        EmailList: [],
+        Posicao(index) {
+            var quantidade = document.getElementById('QuantidadePorPagina').value;
+            var atual = document.getElementById('PaginaAtual').value;
+            if (index == atual) return;
+            controles.buscaPaginada(index, quantidade);
+        },
+        AlteraQuantidade(input){
+            var atual = document.getElementById('PaginaAtual').value;
+            controles.buscaPaginada(atual, input.value);
+        },
+        buscaPaginada(pagina, quantidade){
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            modalClass.OpenModal("load", "Buscando...", true, false);
+            var busca = JSON.stringify({ PaginaAtual: pagina, QuantidadePorPagina: quantidade })
+            var xhr = $.ajax({
+                url: '/Tabela/BuscarPaginas',
+                type: 'POST',
+                contentType: 'application/json',
+                data: busca,
+                headers: headers
+            }).done(function(response) {
+                GetTabela.CarregaTabelaDados(response);
+
+            }).fail(function() {
+                if (!modalClass.abortRequest) {
+                    modalClass.CloseDialog();
+                    if (error.status == 403)
+                        modalClass.OpenModal('mensagem', error.responseText);
+                    else
+                        modalClass.OpenModal("mensagem", "Erro ao buscar");
+                }
+                else {
+                    modalClass.CancelLoadResponse(headers);
+                }
+            })
+            modalClass.CancelLoad(xhr);
+        },
+        SelecionaTudo(btn) {
+            var selected = !(btn.getAttribute('data-selected') === "true");
+            if (selected){
+                btn.innerHTML = '<i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-pen-to-square"></i>Desmarcar Tudo';
+
+            }
+            else{
+                btn.innerHTML = '<i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-pen-to-square"></i>Selecionar Tudo';
+            }
+            btn.setAttribute('data-selected', selected);
+            var checkBoxAll = Array.from(document.querySelectorAll('.tabela-checkbox'));
+                checkBoxAll.forEach(x => {
+                    x.checked = selected;
+            });
+        },
+        EnviaEmail() {
+            let selecionaTudo = document.querySelector('.actions__btn--seleciona-tudo').getAttribute('data-selected') === "true";
+            let emailsList = selecionaTudo ? [] : GetTabela.GetEmails();
+            if (emailsList.length == 0 && !selecionaTudo)
+                modalClass.OpenModal("mensagem", "Para enviar e-mails é preciso selecionar ao menos uma linha");
+            else {
+                let token = $('[name=__RequestVerificationToken]').val();
+                let headers = {};
+                headers['RequestVerificationToken'] = token;
+                $.ajax({
+                    url: '/tabela/RedirectToEmail',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(emailsList),
+                    headers: headers
+                }).done(function(response) {
+                        if (response.success) window.location.href = response.redirect;
+                        else modalClass.OpenModal("mensagem", "Erro ao enviar e-mails!");
+                }).fail(function(error) {
+                    if (error.status == 403)
+                        modalClass.OpenModal('mensagem', error.responseText);
+                    else
+                        modalClass.OpenModal("mensagem", error);
+                })
+            }
+        },
+    }
+
+    const rows = {
+        SelectAllPage(checkbox) {
+            const todosChecks = document.querySelectorAll('.tabela-checkbox-dados')
+            if (todosChecks) todosChecks.forEach(x => x.checked = checkbox.checked);
+        },
+        BtnDataClick(btn) {
+            var open = btn.getAttribute('data-open') === "true";
+            var icon = btn.querySelector('i');
+            var div = btn.parentNode.parentNode.querySelector('.mobile-dados');
+            if (open){
+                icon.classList.remove('fa-chevron-up');
+                icon.classList.add('fa-chevron-down');
+            }
+            else{
+                icon.classList.remove('fa-chevron-down');
+                icon.classList.add('fa-chevron-up');
+            }
+            div.setAttribute('data-hidden', open);
+            btn.setAttribute('data-open', !open);
+        },
+        Mobile(){
+            if (window.innerWidth > 720) {
+                const btns = document.querySelectorAll('.hide-rows-btn');
+                const dados = document.querySelectorAll('.mobile-dados');
+                if (btns) btns.forEach(x => x.setAttribute('data-open', false));
+                if (dados) dados.forEach(x => x.setAttribute('data-hidden', true));
+            }
+        }
+    }
+
+    const GetTabela = {
+        CarregaTabelaDados(data) {
+            modalClass.CloseDialog();
+            if (data.sucesso) {
+                divTabela.innerHTML = data.html;
+                divFiltroPaginador.innerHTML = data.htmlFiltro;
+            }
+            else
+                modalClass.OpenModal("mensagem", data.erro);
+        },
+        LimparFiltro(){
+            document.getElementById('DataCadastroDe').value = null;
+            document.getElementById('DataCadastroAte').value = null;
+            document.getElementById('CidadeId').selectedIndex = 0;
+            document.getElementById('EstadoId').selectedIndex = 0;
+            document.getElementById('Renda').selectedIndex = 0;
+            document.getElementById('FGTS').selectedIndex = 0;
+            document.getElementById('Genero').selectedIndex = 0;
+            document.getElementById('EstadoCivil').selectedIndex = 0;
+            document.getElementById('Filhos').selectedIndex = 0;
+            document.getElementById('Pagina').value = 0;
+            document.getElementById('QuantidadePorPagina').QuantidadePorPagina = 10;
+            document.getElementById('frm-tabela-btn').click();
+        },
+        GetEmails() {
+            var emails = [];
+            const checkBoxAll = document.querySelectorAll('.tabela-checkbox-dados:checked');
+            checkBoxAll.forEach(x => {
+                const input = x.parentNode.querySelector('.email-identity');
+                if (x.checked && input){
+                    emails.push(input.value);
+                }
+            })
+            return emails;
+        },
+        getCidades(input){
+            const estadoId = input.value;
+            if (!isNaN(estadoId)){
+                let token = $('[name=__RequestVerificationToken]').val();
+                let headers = {};
+                headers['RequestVerificationToken'] = token;
+                $.ajax({
+                    url: '/tabela/GetCidades',
+                    type: 'POST',
+                    contentType: 'application/json',
+                    data: JSON.stringify(estadoId),
+                    headers: headers
+                }).done(function(response) {
+                    if (response.length <= 0) return;
+                    const cidades = document.getElementById('CidadeId');
+                    const options = cidades.querySelectorAll('option');
+                    options.forEach(x => {
+                        if (!isNaN(x.value))
+                            x.remove();
+                    });
+                    response.forEach(x => cidades.appendChild(GetTabela.createOptionCidade(x)));
+                    document.getElementById('CidadeId').selectedIndex = 0;
+                }).fail(function(error) {
+                    if (error.status == 403)
+                        modalClass.OpenModal('mensagem', error.responseText);
+                    else
+                        modalClass.OpenModal("mensagem", "Falha ao busca cidades");
+                })
+            }
+            else{
+                const options = document.getElementById('CidadeId').querySelectorAll('option');
+                options.forEach(x => {
+                    if (!isNaN(x.value))
+                        x.remove();
+                });
+            }
+        },
+        createOptionCidade(valor){
+            const option = document.createElement('option');
+            option.value = valor.value;
+            option.text = valor.text;
+            return option;
+        },
+        DeletaDados() {
+            let btnAviso = document.querySelector('.aviso--btn-excluir');
+            btnAviso.addEventListener("click", (e) => {
+                modalClass.CloseDialog();
+                let token = $('[name=__RequestVerificationToken]').val();
+                let headers = {};
+                headers['RequestVerificationToken'] = token;
+                const selecionaTudo = document.querySelector('.actions__btn--seleciona-tudo').getAttribute('data-selected') === "true";
+                let data = selecionaTudo ? [] : GetTabela.GetEmails();
+                if (data.length == 0 && !selecionaTudo)
+                    modalClass.OpenModal("mensagem", "Para exlcuír dados da tabela é preciso selecionar ao menos uma linha");
+                else {
+                    modalClass.OpenModal("load", "Deletando Dados", true, false);
+                    var xhr = $.ajax({
+                        url: '/Tabela/DeletaCliente',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify(data),
+                        headers: headers
+                    }).done(function(response) {
+                        modalClass.CloseDialog();
+                        if (response.success){
+                            modalClass.OpenModal("mensagem", response.message);
+                            divTabela.innerHTML = response.html;
+                        }
+                        else
+                            modalClass.OpenModal("mensagem", response.error);
+
+                    }).fail(function() {
+                        if (!modalClass.abortRequest) {
+                            modalClass.CloseDialog();
+                            if (error.status == 403)
+                                modalClass.OpenModal('mensagem', error.responseText);
+                            else
+                                modalClass.OpenModal("mensagem", "Erro ao excluir cadastros selecionado!\n");
+                        }
+                        else {
+                            modalClass.CancelLoadResponse(headers);
+                        }
+                    })
+                    modalClass.CancelLoad(xhr);
+                }
+            });
+        },
+        DownloadTabela() {
+            let btnAviso = document.querySelector('.export--btn-download');
+            btnAviso.addEventListener("click", async () => {
+                modalClass.CloseDialog();
+                let token = $('[name=__RequestVerificationToken]').val();
+                let headers = { 'RequestVerificationToken': token };
+                const selecionaTudo = document
+                    .querySelector('.actions__btn--seleciona-tudo')
+                    .getAttribute('data-selected') === "true";
+                let data = selecionaTudo ? [] : GetTabela.GetEmails();
+                if (data.length == 0 && !selecionaTudo) {
+                    modalClass.OpenModal("mensagem", "Para fazer download da tabela é preciso selecionar ao menos uma linha");
+                    return;
+                }
+                modalClass.OpenModal("load", "Baixando tabela", true, false);
+                try {
+                    const xhr = new XMLHttpRequest();
+                    xhr.open("POST", "/Tabela/DownloadTabela", true);
+                    xhr.responseType = "blob";
+                    xhr.setRequestHeader("Content-Type", "application/json");
+                    xhr.setRequestHeader("RequestVerificationToken", token);
+                    xhr.onload = function () {
+                        modalClass.CloseDialog();
+                        if (xhr.status === 200) {
+                            const blob = xhr.response;
+                            const url = window.URL.createObjectURL(blob);
+
+                            const data = new Date();
+                            const fileName = `tabela-${data.getDate()}-${data.getMonth() + 1}-${data.getFullYear()}.xlsx`;
+
+                            const a = document.createElement('a');
+                            a.href = url;
+                            a.download = fileName;
+                            document.body.appendChild(a);
+                            a.click();
+                            a.remove();
+                        }
+                        else {
+                            modalClass.OpenModal("mensagem", "Erro ao baixar tabela!");
+                        }
+                    };
+                    xhr.onerror = function () {
+                        modalClass.CloseDialog();
+                        modalClass.OpenModal("mensagem", "Erro na requisição!");
+                    };
+
+                    xhr.send(JSON.stringify(data));
+                }
+                catch {
+                    modalClass.CloseDialog();
+                    modalClass.OpenModal("mensagem", "Erro inesperado!");
+                }
+            });
+        }
+    }
+
+    const ModalTabela = {
+        BtnExcluiRows() {
+            let data = GetTabela.GetEmails();
+            let selecionaTudo = document.querySelector('.actions__btn--seleciona-tudo').getAttribute('data-selected') === "true";
+            if (data.length == 0 && !selecionaTudo){
+                modalClass.OpenModal("mensagem", "É necessário selecionar ao menos um cadastro!");
+            }
+            else{
+                let msg = "Deseja excluír todos os cadastros filtrados? A ação não poderá ser desfeita!";
+                if (!selecionaTudo)
+                    msg = `Deseja excluír o(s) ${data.length} cadastro(s) selecionado(s)? A ação não poderá ser desfeita!`
+
+                modalClass.OpenModal("empty", `<p class="dialog--aviso">${msg}</p> <button type="button" class="aviso--btn-excluir">Excluir</button>`);
+                GetTabela.DeletaDados();
+            }
+        },
+        BtnExportExcel() {
+            let data = GetTabela.GetEmails();
+            let selecionaTudo = document.querySelector('.actions__btn--seleciona-tudo').getAttribute('data-selected') === "true";
+            if (data.length == 0 && !selecionaTudo){
+                modalClass.OpenModal("mensagem", "É necessário selecionar ao menos um cadastro!");
+            }
+            else{
+                let msg = "Deseja fazer download todos os cadastros filtrados?";
+                if (!selecionaTudo)
+                    msg = `Deseja fazer download do(s) ${data.length} cadastro(s) selecionado(s)?`
+
+                modalClass.OpenModal("empty", `<p class="dialog--export">${msg}</p> <button type="button" class="export--btn-download">Download</button>`);
+                GetTabela.DownloadTabela();
+            }
+        }
+    }
+
+    window.addEventListener("resize", (e) =>{
+        rows.Mobile();
+    });
+</script>

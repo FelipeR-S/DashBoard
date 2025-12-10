@@ -1,0 +1,74 @@
+﻿@using DashBoard.Models.Enums
+@model DashBoard.Models.Role
+@{
+    var errorMessage = Model.Id > 0 ? "Erro ao atualizar role" : "Erro ao inserir role";
+    var status = Model.Id > 0 ? "atualizando..." : "inserindo...";
+    var btnText = Model.Id > 0 ? "Atualizar" : "Cadastrar";
+}
+@using (Html.AjaxBeginForm("CreateRole", "Sistema", new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnBegin = "modalClass.OpenModal('load', '" + status + "', true)",
+    OnSuccess = "System.returnFormRole(data)",
+    OnFailure = "modalClass.OpenModal('mensagem', '" + errorMessage + "')"
+}, new { enctype = "multipart/form-data", id = "FormRole" }))
+{
+    @Html.HiddenFor(x => x.Id)
+    <label for="nomeNew">Nome:</label>
+    <div class="config--input-div">
+        @if (Model.Id > 0)
+        {
+            <span><b>@Model.Nome</b></span>
+            @Html.HiddenFor(x => x.Nome)
+        }
+        else
+        {
+            @Html.TextBoxFor(m => m.Nome, new
+            {
+                @class = "config--input",
+        type = "text",
+        pattern = "^[a-zA-Z]{5,15}$",
+        onkeyup = "System.VerificaInput(this)",
+        maxlength = "15",
+        required = "required"
+        })
+        <br>
+        <span data-hidden="true" class="config--input-error text-danger">
+        Usuário deve conter apenas letras e ter entre 5 e 15 caracteres!
+    </span>
+        }
+    </div>
+    <div class="grid-table">
+        <div class="header">Nome Permissão</div>
+        <div class="header">Salvar</div>
+        <div class="header">Editar</div>
+        <div class="header">Excluir</div>
+        <div class="header">Visualizar</div>
+        @if (Model.Permissoes?.Any() == true)
+        {
+            for (int i = 0; i < Model.Permissoes.Count(); i++)
+            {
+                <div class="cell">@(EnumExtension.GetEnumMemberValue(Model.Permissoes[i].Atividade))</div>
+                <div class="cell celaligncenter">@Html.CheckBoxFor(x => x.Permissoes[i].Salvar)</div>
+                <div class="cell celaligncenter">@Html.CheckBoxFor(x => x.Permissoes[i].Editar)</div>
+                <div class="cell celaligncenter">@Html.CheckBoxFor(x => x.Permissoes[i].Excluir)</div>
+                <div class="cell celaligncenter">@Html.CheckBoxFor(x => x.Permissoes[i].Visualizar)</div>
+                @Html.HiddenFor(x => x.Permissoes[i].Atividade)
+                @Html.HiddenFor(x => x.Permissoes[i].RoleId)
+                @Html.HiddenFor(x => x.Permissoes[i].Id)
+            }
+        }
+        else
+        {
+            <div class="cell">Sem registros...</div>
+            <div class="cell celaligncenter">-</div>
+            <div class="cell celaligncenter">-</div>
+            <div class="cell celaligncenter">-</div>
+            <div class="cell celaligncenter">-</div>
+        }
+    </div>
+    <br>
+    <button type="button" class="buttons--actions__btn actions__btn--exporta" onclick="System.returnPanel('#panel-roles', '#panel-lista-roles', '#btn-role')">Voltar</button>
+    <button type="button" class="buttons--actions__btn actions__btn--deleta" onclick="System.cleanForm()">Limpar Formulário</button>
+    <button type="submit" class="buttons--actions__btn actions__btn--seleciona-tudo">@btnText</button>
+}

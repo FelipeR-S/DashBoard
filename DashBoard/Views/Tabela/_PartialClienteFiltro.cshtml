@@ -1,0 +1,83 @@
+﻿@using DashBoard.Services;
+@model ClienteFiltroModelo
+
+@{
+	string dataAtual = DateTime.Now.ToString("yyyy-MM-dd");
+
+	var listItemEstados = new List<SelectListItem>()
+	{
+		new SelectListItem() { Text = "Selecione...", Selected = true }
+	};
+
+	var listItemCidades = new List<SelectListItem>()
+	{
+		new SelectListItem() { Text = "Selecione...", Selected = true }
+	};
+
+	if (CacheSystem.Estados != null && CacheSystem.Estados.Any())
+	{
+		var estadosTemp = CacheSystem.Estados.Select(x => new SelectListItem { Value = x.Id.ToString(), Text = x.UF }).ToList();
+		listItemEstados.AddRange(estadosTemp);
+	}
+
+	var FGTS = new List<SelectListItem>()
+	{
+		new SelectListItem() { Text = "Selecione...", Selected = true },
+		new SelectListItem() { Text = "Possui", Value = "true" },
+		new SelectListItem() { Text = "Não Possui", Value = "false" },
+	};
+}
+
+@using (Html.AjaxBeginForm("UpdateTabelas", "Tabela", new AjaxOptions
+{
+	HttpMethod = "POST",
+	OnBegin = "modalClass.OpenModal('load', 'Buscando...')",
+	OnSuccess = "GetTabela.CarregaTabelaDados(data)",
+	OnFailure = "modalClass.OpenModal('mensagem', 'Erro ao atualizar tabela')"
+}, new { enctype = "multipart/form-data", id = "TabelaForm"}))
+{
+	<div class="controle__tabela--filtros">
+		<div class="filtros__gerais">
+			<div class="detalhe--item">
+				<label for="DataCadastroDe">Período de:</label>
+				@Html.TextBoxFor(m => m.DataCadastroDe, new { @class = "tabela--select", type = "date", @min = "1900-01-01", @max =$"{dataAtual}" })
+			</div>
+			<div class="detalhe--item">
+				<label for="DataCadastroAte">até:</label>
+				@Html.TextBoxFor(m => m.DataCadastroAte, new { @class = "tabela--select", type = "date", @min = "1900-01-01", @max = $"{dataAtual}" })
+			</div>
+			<div class="detalhe--item">
+				<label for="EstadoId">Estado</label>
+				@Html.DropDownListFor(m => m.EstadoId, listItemEstados, new { @class = "tabela--select", onchange = "GetTabela.getCidades(this)" })
+			</div>
+			<div class="detalhe--item">
+				<label for="CidadeId">Cidade</label>
+				@Html.DropDownListFor(m => m.CidadeId, listItemCidades, new { @class = "tabela--select"})
+			</div>
+			<div class="detalhe--item">
+				<label for="Renda">Renda</label>
+				@Html.DropDownListFor(m => m.Renda, CacheSystem.RendaDashboard, new { @class = "tabela--select"})
+			</div>
+			<div class="detalhe--item">
+				<label for="FGTS">FGTS</label>
+				@Html.DropDownListFor(m => m.FGTS, FGTS, new { @class = "tabela--select"})
+			</div>
+			<div class="detalhe--item">
+				<label for="Genero">Gênero</label>
+				@Html.DropDownListFor(m => m.Genero, CacheSystem.GeneroDashboard, new { @class = "tabela--select"})
+			</div>
+			<div class="detalhe--item">
+				<label for="EstadoCivil">Estado Civil</label>
+				@Html.DropDownListFor(m => m.EstadoCivil, CacheSystem.EstadoCivilDashboard, new { @class = "tabela--select"})
+			</div>
+			<div class="detalhe--item">
+				<label for="Filhos">Filhos</label>
+				@Html.DropDownListFor(m => m.Filhos, CacheSystem.FilhosDashboard, new { @class = "tabela--select"})
+			</div>
+		</div>
+	</div>
+	<div class="filtros__gerais">
+		<button type="button" class="controle__tabela--load-btn" onclick="GetTabela.LimparFiltro()">Limpar</button>
+		<button type="submit" id="frm-tabela-btn" class="controle__tabela--load-btn">Buscar</button>
+	</div>
+}

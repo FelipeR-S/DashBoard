@@ -1,0 +1,142 @@
+﻿@model DashBoard.Models.User
+@{
+    var selectRange = new List<SelectListItem>() { new SelectListItem() { Text = "Selecione...", Value = "" } };
+    var select = (IEnumerable<SelectListItem>?)ViewData["RolesSelect"] ?? new List<SelectListItem>();
+    if (select?.Any() == true)
+    {
+        selectRange.AddRange(select);
+    }
+}
+@using (Html.AjaxBeginForm("CreateUser", "Sistema", new AjaxOptions
+{
+    HttpMethod = "POST",
+    OnBegin = "modalClass.OpenModal('load', 'Inserindo...', true)",
+    OnSuccess = "System.returnFormUser(data)",
+    OnFailure = "modalClass.OpenModal('mensagem', 'Erro ao inserir usuário')"
+}, new { enctype = "multipart/form-data", id = "NewUserForm" }))
+{
+    <label for="nomeNew">Nome:</label>
+    <div class="config--input-div">
+        @Html.TextBoxFor(m => m.Nome, new
+        {
+            @class = "config--input",
+        type = "text",
+        pattern = "^([^\\s][a-zA-ZÀ-ú]{2,}[\\s]?){1,5}[^\\s]$",
+        onkeyup = "System.VerificaInput(this)",
+        autocomplete = "name",
+        maxlength = "40"
+        })
+    <span data-hidden="true" class="config--input-error text-danger">
+        Nome deve conter apenas letras e ter entre 5 e 40 caracteres!
+    </span>
+</div>
+<label for="usuarioNew">Usuário:*</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m  => m.Usuario, new
+        {
+            @class = "config--input",
+        type = "text",
+        pattern = "^[a-zA-Z]{5,15}$",
+        onkeyup = "System.VerificaInput(this)",
+        autocomplete = "username",
+        minlength = "5",
+        maxlength = "15",
+        required = "required"
+        })
+    <span data-hidden="true" class="config--input-error text-danger">
+        Usuário deve conter apenas letras e ter entre 5 e 15 caracteres!
+    </span>
+</div>
+<label for="matriculaNew">Matrícula:*</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m => m.Matricula, new
+        {
+            @class = "config--input",
+        type = "text",
+        pattern = "^[0-9]{3,8}$",
+        onkeyup = "System.VerificaInput(this)",
+        minlength = "3",
+        maxlength = "8",
+        required = "required"
+        })
+    <span data-hidden="true" class="config--input-error text-danger">
+        Matrícula deve conter apenas números e ter entre 3 e 8 digitos!
+    </span>
+</div>
+<label for="emailNew">Email:*</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m => m.Email, new
+        {
+            @class = "config--input",
+        type = "email",
+        autocomplete = "email",
+        pattern = "^([a-z0-9]{1,20}[._\\-]?){1,5}@([a-z0-9]{1,20}[.]?){2,5}$",
+        onkeyup = "System.VerificaInput(this)",
+        maxlength = "40",
+        required = "required"
+        })
+    <span data-hidden="true" class="config--input-error text-danger">
+        Email deve obedecer ao seguinte formato: nomeemail@email.com.br
+    </span>
+</div>
+<label for="telefoneNew">Telefone:</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m => m.Telefone, new
+        {
+            @class = "config--input",
+        type = "tel",
+        autocomplete = "tel",
+        pattern = "^[\\(]?[0-9]{2}[\\)]?[\\s]?[0-9]{4,5}[\\-\\s]?[0-9]{4}$",
+        onkeyup = "System.VerificaInput(this)"
+        })
+    <span data-hidden="true" class="config--input-error text-danger">
+        Telefone deve obedecer ao seguinte formato: DD 000000000
+    </span>
+</div>
+<label for="enderecoNew">Endereço:</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m => m.Endereco, new { @class = "config--input" })
+</div>
+<label for="enderecoNew">Role:</label>
+<div class="config--input-div">
+    @Html.DropDownListFor(m => m.RoleId, selectRange, new { @class = "config--input", required = "required" })
+</div>
+<label for="Senha">Senha:*</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m => m.Senha, new
+        {
+            @class = "config--input config--input-senha-confirm",
+        type = "password",
+        autocomplete = "password",
+        pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$",
+        required = "required",
+        onkeyup = "System.VerificaInput(this)"
+        })
+    <button type="button" aria-pressed="false" class="config--mostra-senha" onclick="System.BtnMostraSenha(this)">
+        <i data-hidden="false" class="config--ico-senha fa-regular fa-eye"></i>
+        <i data-hidden="true" class="config--ico-senha fa-regular fa-eye-slash"></i>
+    </button>
+    <span data-hidden="true" class="config--input-error text-danger">
+        A senha deve conter no mínimo 5 caracteres.
+    </span>
+</div>
+<label for="senha-confirmNew">Senha:*</label>
+<div class="config--input-div">
+    @Html.TextBoxFor(m => m.SenhaConfirmar, new
+        {
+            @class = "config--input config--input-senha-confirm",
+        type = "password",
+        autocomplete = "password",
+        required = "required",
+        onkeyup = "System.ComparaSenha(this, '#Senha')"
+        })
+    <button type="button" aria-pressed="false" class="config--mostra-senha" onclick="System.BtnMostraSenha(this)">
+        <i data-hidden="false" class="config--ico-senha fa-regular fa-eye"></i>
+        <i data-hidden="true" class="config--ico-senha fa-regular fa-eye-slash"></i>
+    </button>
+    <span data-hidden="true" class="config--input-error text-danger">As senhas não correspondem!</span>
+</div>
+<button type="button" class="buttons--actions__btn actions__btn--exporta" onclick="System.returnPanel('#panel-users', '#panel-lista-users', '#btn-newuser')">Voltar</button>
+<button type="button" class="buttons--actions__btn actions__btn--deleta" onclick="System.cleanForm()">Limpar Formulário</button>
+<button type="submit" class="buttons--actions__btn actions__btn--seleciona-tudo">Cadastrar</button>
+}

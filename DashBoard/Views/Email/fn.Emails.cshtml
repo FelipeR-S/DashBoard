@@ -1,0 +1,317 @@
+﻿<script src="https://cdnjs.cloudflare.com/ajax/libs/ace/1.14.0/ace.js"
+        integrity="sha512-WYlXqL7GPpZL2ImDErTX0RMKy5hR17vGW5yY04p9Z+YhYFJcUUFRT31N29euNB4sLNNf/s0XQXZfzg3uKSoOdA=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+    modalClass.FechaModalBtn();
+
+    const Template = {
+        fileName: null,
+        panelShowTemplate: document.querySelector('.emails__show--template'),
+        panelShowCode: document.querySelector('.emails__edit--template'),
+        options: document.querySelector('.emails__options-template'),
+        ShowTextTemplate(input) {
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            var templateId = $(input).val();
+            if (!templateId || templateId == "")
+            {
+                Template.panelShowTemplate.innerHTML = "";
+                editor.setValue("");
+                return;
+            }
+            modalClass.OpenModal("load", "Carregando...", true);
+            $.ajax({
+                url: '/Email/LoadSelectedTemplate',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify(templateId),
+                headers: headers
+            }).done(function(response) {
+                modalClass.CloseDialog();
+                if (response.success)
+                    editor.setValue(response.html)
+                else{
+                    editor.setValue("Template não encontrado!")
+                    modalClass.OpenModal('mensagem', response.error);
+                }
+                Template.ShowViewTemplate();
+            }).fail(function(error) {
+                    if (error.status == 403)
+                        modalClass.OpenModal('mensagem', error.responseText);
+                    else
+                        modalClass.OpenModal("mensagem", error);
+            })
+        },
+        ShowViewTemplate() {
+            let code = editor.getValue();
+            let element = Template.panelShowTemplate;
+            element.innerHTML = code;
+        },
+        InsereTemplate() {
+            let input = document.createElement('input');
+            input.setAttribute('data-hidden', true);
+            input.type = 'file';
+            input.accept = '.html'
+            input.click();
+            Template.Upload(input);
+            input.remove();
+        },
+        Upload(input) {
+            input.addEventListener('change', (e) => {
+                if (input.files[0].type == 'text/html') {
+                    let file = input.files[0];
+                    Template.ReadFile(file);
+                }
+            })
+        },
+        ReadFile(file) {
+            if (file != null) {
+                var reader = new FileReader();
+                reader.readAsText(file, "UTF-8");
+                editor.setValue("");
+                reader.onload = function (e) {
+                    var html = Template.CleanTemplate(e.target.result)
+                    editor.insert(html);
+                    Template.ShowViewTemplate();
+                }
+                reader.onerror = function (e) {
+                    editor.insert("Erro ao ler arquivo!");
+                    Template.ShowViewTemplate();
+                }
+            }
+        },
+        SaveTemplate() {
+            var template = editor.getValue();
+            if (template.length < 1) {
+                modalClass.OpenModal("mensagem", "Template vazio!");
+                return;
+            }
+            var templateId = $("#templates").val();
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            modalClass.OpenModal("load", "Salvando...", true, false);
+            var xhr = $.ajax({
+                url: '/email/SalvaTemplate',
+                type: 'POST',
+                data: {
+                    html: template,
+                    fileName: templateId,
+                },
+                headers: headers
+            }).done(function(response) {
+                modalClass.CloseDialog();
+                if (response.success){
+                    modalClass.OpenModal("mensagem", response.msg);
+                    Template.panelShowTemplate.innerHTML = "";
+                    editor.setValue("");
+                    $("#templates").html("");
+                    $('#templates').append(
+                                    $('<option>', {
+                                        value: "",
+                                        text: "Selecione..."
+                                    }));
+                    var templates = response.templates;
+                    for (const key in templates) {
+                        $('#templates').append(
+                                        $('<option>', {
+                                            value: key,
+                                            text: templates[key]
+                                        }));
+                    }
+                }
+                else
+                    modalClass.OpenModal("mensagem", response.msg);
+            }).fail(function(error) {
+                if (!modalClass.abortRequest) {
+                    modalClass.CloseDialog();
+                    if (error.status == 403)
+                        modalClass.OpenModal('mensagem', error.responseText);
+                    else
+                        modalClass.OpenModal("mensagem", "Erro ao Salvar: " + error);
+                }
+                else {
+                    modalClass.CancelLoadResponse(headers);
+                }
+            })
+            modalClass.CancelLoad(xhr);
+        },
+        CleanTemplate(template){
+            if (!template || template.length < 1) return template;
+            const match = template.match(/<body[^>]*>([\s\S]*?)<\/body>/i);
+            let html = match ? match[1] : template;
+            html = html.replace(/class\s*=\s*(['"])[^'"]*\1/g, '');
+            html = html.replace('target="_blank"', '');
+            html = html.replace(/(<a\b[^>]*href\s*=\s*(["'])[^"']*\2)(?![^>]*\btarget=)/gi, '$1 target="_blank"');
+            return html;
+        },
+        TemplateOnChange() {
+            Template.panelShowTemplate.addEventListener('focusout', (e) => {
+                if (Template.panelShowTemplate.innerHTML.length < 1) return;
+                const html = Template.CleanTemplate(Template.panelShowTemplate.innerHTML);
+                editor.setValue("");
+                editor.insert(html);
+            });
+        }
+    }
+
+    const ControlPanel = {
+        selectEmailList: document.querySelector('.emails__options-envia'),
+        assunto: document.getElementById('AssuntoEmail'),
+        ExpandBtn(btn) {
+            let active = (btn.ariaChecked === 'true')
+            let btnOpen = btn.querySelector('.open');
+            let btnClose = btn.querySelector('.close');
+            let div = btn.parentNode.querySelector('div');
+            if (!active) {
+                btn.ariaChecked = true;
+                div.style.height = '70vh';
+                editor.resize();
+                btnClose.setAttribute('data-hidden', true);
+                btnOpen.setAttribute('data-hidden', false);
+            }
+            else {
+                btn.ariaChecked = false;
+                div.style.height = '2.5rem';
+                editor.resize();
+                btnOpen.setAttribute('data-hidden', true);
+                btnClose.setAttribute('data-hidden', false);
+            }
+        },
+        ChangeTema(btn) {
+            let checked = (btn.ariaChecked === 'true')
+            if (!checked) {
+                btn.ariaChecked = true;
+                editor.setTheme("ace/theme/dracula");
+                localStorage.setItem("theme", "dracula");
+                localStorage.setItem("btnTheme", btn.ariaChecked)
+            }
+            else {
+                btn.ariaChecked = false;
+                editor.setTheme("ace/theme/chrome");
+                localStorage.setItem("theme", "chrome");
+                localStorage.setItem("btnTheme", btn.ariaChecked)
+            }
+        },
+        themeLoad() {
+            if (window.innerWidth > 1000)
+                editor.session.setUseWrapMode(true);
+            else
+                editor.session.setUseWrapMode(false);
+
+            editor.session.setMode("ace/mode/html");
+            editor.setShowPrintMargin(false);
+            editor.renderer.setScrollMargin(10, 10);
+            editor.renderer.setShowGutter(false);
+            editor.session.setTabSize(2);
+
+            let fontSize = localStorage.getItem("fontSize");
+            let theme = localStorage.getItem("theme");
+            let btntheme = localStorage.getItem("btnTheme");
+            if (theme == null) theme = "chrome";
+            if (btntheme == null) btntheme = false;
+            if (fontSize == null) fontSize = '9pt';
+
+            editor.setTheme(`ace/theme/${theme}`);
+            editor.setOptions({ fontSize: fontSize });
+            $('#btnThemaHtml').attr('aria-checked', btntheme)
+        },
+        Position(top) {
+            if (top){
+                editor.renderer.scrollCursorIntoView({ row: 0, column: 1 }, 0.5);
+            }
+            else{
+                let final = editor.session.getLength();
+                editor.renderer.scrollCursorIntoView({ row: final, column: 1 }, 0.5);
+            }
+        },
+        FontSize(plus) {
+            if (plus){
+                let atual = parseInt((editor.getOption('fontSize')).replace('pt', ''));
+                if (atual > 18) return;
+                editor.setOptions({ fontSize: `${atual + 1}pt` });
+                localStorage.setItem("fontSize", `${atual + 1}pt`);
+            }
+            else{
+                let atual = parseInt((editor.getOption('fontSize')).replace('pt', ''));
+                if (atual < 6) return;
+                editor.setOptions({ fontSize: `${atual - 1}pt` });
+                localStorage.setItem("fontSize", `${atual - 1}pt`);
+            }
+        },
+        Update() {
+            let code = editor.getValue();
+            let element = Template.panelShowTemplate;
+            element.innerHTML = code;
+        },
+        Info() {
+            let info = '<div class="emails__info--layout"><h3><b>Informações Gerais</b></h3><br>' +
+                "<span><b>Conteúdo do E-mail</b></span><br>" +
+                "<p>Para que o email saia com as informações personalizadas para cada cliente deve-se utilizar o @@ antes de cada campo. Siga as instruções abaixo:</p>" +
+                "<ul><li>Nome: @@nome</li><li>Email: @@email</li><li>Telefone: @@telefone</li><li>Cidade: @@cidade</li><li>Estado: @@estado</li><li>Bairro: @@bairro</li></ul><br>" +
+                "<span><b>Uso dos Templates</b></span><br>" +
+                '<ul><li>Tamanho máximo: 1MB</li><li>Formato: html</li><li>Para aplicar as alterações deve-se utilizar o botão "Salvar Alterações"</li></ul><br><br>'
+                "<span><b>Uso das Imagens</b></span><br>" +
+                "<ul><li>Tamanho máximo: 1MB</li><li>Caso exista um arquivo com mesmo nome a imagem será substituída</li></ul></div>";
+            modalClass.OpenModal("mensagem", info);
+        },
+        EnviarEmails() {
+            let templateId = $('#templates').val();
+            let assunto = ControlPanel.assunto.value;
+            let tipo = ControlPanel.selectEmailList.value;
+            if (!assunto || assunto == ""){
+                modalClass.OpenModal("mensagem", 'Assunto da mensagem está vazio!');
+                return;
+            }
+            if (!templateId || templateId  == ""){
+                modalClass.OpenModal("mensagem", 'Nenhum template selecionado!');
+                return;
+            }
+            modalClass.OpenModal("load", 'Enviando E-mails!', true, false);
+            var abort = false;
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            let xhr = $.ajax({
+                url: '/email/PostEmails',
+                type: 'POST',
+                data: {
+                    Tipo: tipo,
+                    Assunto: assunto,
+                    TemplateId: templateId,
+                },
+                headers: headers,
+            }).done((response) => {
+                modalClass.CloseDialog();
+                modalClass.OpenModal("mensagem", response);
+            }).fail((error) => {
+                if (!abort) {
+                    modalClass.CloseDialog();
+                    if (error.status == 403)
+                        modalClass.OpenModal('mensagem', error.responseText);
+                    else
+                        modalClass.OpenModal("mensagem", "Erro ao enviar e-mails! " + error)
+                }
+                else {
+                    modalClass.CancelLoadResponse(headers);
+                }
+            });
+            modalClass.CancelLoad(xhr);
+        }
+    }
+
+    window.addEventListener('resize', (e) => {
+        if (window.innerWidth > 1000)
+            editor.session.setUseWrapMode(true);
+        else
+            editor.session.setUseWrapMode(false);
+    })
+
+    window.addEventListener('load', (e) => {
+        ControlPanel.themeLoad();
+    })
+
+    var editor = ace.edit("editor");
+    Template.TemplateOnChange();
+</script>

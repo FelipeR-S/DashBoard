@@ -1,0 +1,159 @@
+﻿<script>
+	modalClass.FechaModalBtn();
+	modalClass.SendUploadImage();
+	modalClass.SetUploadImage();
+
+	const Configs = {
+		themeOptions: Array.from(document.querySelectorAll('[name="theme"]')),
+		LimiteAvisoInput(input) {
+			if (input.value > 9999) input.value = 9999;
+		},
+		SaveConfigs() {
+			let token = $('[name=__RequestVerificationToken]').val();
+			let headers = {};
+			headers['RequestVerificationToken'] = token;
+			var option = $('input[name="theme"]:checked').val();
+			let aviso = "0";
+			if ($('#inputAviso').val() != null && $('#inputAviso').val() != "")
+				aviso = $('#inputAviso').val();
+			
+			let data = [option, aviso];
+			modalClass.OpenModal("load", "Alterando...", true);
+			$.ajax({
+				url: '/Configs/UpdateUserConfig',
+				type: 'POST',
+				contentType: 'application/json',
+				processData: false,
+				data: JSON.stringify(data),
+				headers: headers
+			}).done((response) => {
+				modalClass.CloseDialog();
+				if (response.success){
+					let body = document.querySelector('body');
+					body.id = option;
+				}
+				modalClass.OpenModal('mensagem', response.msg);
+			}).fail((error) => {
+					if (error.status == 403)
+						modalClass.OpenModal('mensagem', error.responseText);
+					else
+						modalClass.OpenModal('mensagem', "Falha ao salvar configurações");
+			});
+		},
+		ShowPanel(button, panelId) {
+			let panel = document.getElementById(panelId);
+			let ariaChecked = button.ariaChecked === "true";
+			if (!ariaChecked) {
+				panel.setAttribute('data-hidden', false);
+				button.ariaChecked = true;
+			}
+			else {
+				panel.setAttribute('data-hidden', true);
+				button.ariaChecked = false;
+			}
+		},
+		BtnMostraSenha(btn) {
+			let isPressed = (btn.ariaPressed === 'true');
+			let input = btn.parentElement.querySelector('.config--input');
+			let icos = Array.from(btn.querySelectorAll('.config--ico-senha'));
+			if (isPressed) {
+				icos[0].setAttribute('data-hidden', false);
+				icos[1].setAttribute('data-hidden', true);
+				input.type = "password";
+				btn.ariaPressed = false;
+			}
+			else {
+				icos[0].setAttribute('data-hidden', true);
+				icos[1].setAttribute('data-hidden', false);
+				input.type = "text";
+				btn.ariaPressed = true;
+			}
+		},
+		ComparaSenha(input, idPrincipal) {
+			if ($(input).val() == $(idPrincipal).val())
+				Configs.Correto(input);
+			else
+				Configs.Incorreto(input);
+		},
+		VerificaInput(i) {
+			if (i.pattern != null && i.pattern != "") {
+				let regex = new RegExp(i.pattern);
+				if (!regex.test(i.value))
+					Configs.Incorreto(i);
+				else
+					Configs.Correto(i);
+			}
+		},
+		Incorreto(currentInput) {
+			currentInput.style.borderColor = 'red';
+			currentInput.style.color = 'red';
+			let parent = currentInput.parentElement;
+			let incorrect = Configs.CreateMark(false);
+			let ico = parent.querySelector('.config-ico');
+			let msg = parent.querySelector('.config--input-error');
+			msg.setAttribute('data-hidden', false);
+			if (ico != null) parent.removeChild(ico);
+			parent.appendChild(incorrect);
+		},
+		Correto(currentInput) {
+			currentInput.style.borderColor = 'limegreen';
+			currentInput.style.color = 'limegreen';
+			let parent = currentInput.parentElement;
+			let correct = Configs.CreateMark(true);
+			let ico = parent.querySelector('.config-ico');
+			let msg = parent.querySelector('.config--input-error');
+			msg.setAttribute('data-hidden', true);
+			if (ico != null) parent.removeChild(ico);
+			parent.appendChild(correct);
+		},
+		CreateMark(correct) {
+			let mark = document.createElement('div');
+			mark.classList.add('config-ico');
+			if (correct) mark.innerHTML = '<i class="fa-solid fa-check" style="color: limegreen"></i>';
+			else mark.innerHTML = '<i class="fa-solid fa-xmark" style="color: red"></i>';
+			return mark;
+		},
+		LoadCheck() {
+			let bodyId = document.querySelector('body').id;
+			Configs.themeOptions.forEach((option) => {
+				if (option.id == bodyId) option.checked = true;
+				else option.checked = false;
+			})
+		},
+		Info() {
+			modalClass.OpenModal("mensagem", '<span><b>Uso das Imagens</b></span><br>' +
+				'<ul style="text-align:left; margin:1rem;"><li><b>Formato:</b> .jpg</li><li><b>Tamanho máximo:</b> 1MB</li><li><b>Proporção:</b> 1/1 "Quadrada"</li><li>A imagem salva anteriormente será excluída</li></ul>');
+		},
+		LoadImage() {
+			let divImg = document.querySelector('.config--img-user');
+			let userMatricula = document.querySelector('.user__matricula').innerHTML.replace("Matrícula: ", "");
+			let file = `../img/dashboard/user/${userMatricula}.jpg`;
+			let xhttp = new XMLHttpRequest();
+			xhttp.onreadystatechange = function() {
+				if (this.readyState == 4) {
+					if (this.status == 200)
+						divImg.style.setProperty("background-image", `url(../../img/dashboard/user/${userMatricula}.jpg?nocache=${Date.now()})`);
+					if (this.status == 404)
+						divImg.style.setProperty("background-image", `url(../../img/dashboard/user/default.webp?nocache=${Date.now()})`);
+				}
+			}
+			xhttp.open("GET", file, true);
+			xhttp.setRequestHeader("Cache-Control", "no-cache, no-store, max-age=0");
+			xhttp.send();
+		},
+		Change() {
+			let userMatricula = document.querySelector('.user__matricula').innerHTML.replace("Matrícula: ", "");
+			modalClass.imgType = ".jpg";
+			modalClass.imgName = userMatricula;
+			var cancelIdleCallback = function () {
+				Configs.LoadImage();
+			}
+			modalClass.OpenModal("uploadImage", "", false, true, true, cancelIdleCallback);
+		},
+	}
+
+	window.addEventListener('load', (e) => {
+		Configs.LoadCheck();
+		Configs.LoadImage();
+	});
+</script>

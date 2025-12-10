@@ -1,0 +1,21 @@
+﻿@using Newtonsoft.Json;
+@{
+	ViewData["Title"] = "Configurações";
+	Layout = "_LayoutDashboard";
+	var user = new User();
+	var permissoes = Context.Session.GetString("PermissoesCache");
+	var lista = permissoes != null
+		? JsonConvert.DeserializeObject<List<Permissoes>>(permissoes)
+		: new List<Permissoes>();
+	var permissao = lista?.FirstOrDefault(x => x.Atividade == DashBoard.Models.Enums.Atividade.Emails);
+	ViewData["Permissao"] = permissao;
+}
+@model User
+<asp:Content ID="Configs" ContentPlaceHolderID="Configs" runat="server">
+	<link rel="stylesheet" href="~/css/dashboardPanels/configs.css" asp-append-version="true">
+</asp:Content>
+<div class="display__layout">
+	<partial name="_PartialConfigGeral"/>
+	<partial name="_PartialUsuarioLogado" model="@Model"/>
+</div>
+<partial name="fn.Configs" />

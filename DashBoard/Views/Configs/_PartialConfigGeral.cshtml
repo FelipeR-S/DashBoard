@@ -1,0 +1,52 @@
+﻿@{
+    string aviso = User.FindFirst("Aviso")?.Value ?? "0";
+}
+@model User
+
+<h1>Configurações Gerais</h1>
+<div class="configs--panels configs__gerais-panel--title">
+    <h2 class="user-panel--title">Configurações</h2>
+    <button class="configs--panels-btn gerais-panel--btn" aria-checked="false" onclick="Configs.ShowPanel(this, 'panel-user-config')">
+        <i class="fa-solid fa-chevron-down"></i>
+    </button>
+</div>
+<div class="gerais-panel" data-hidden="true" id="panel-user-config">
+    <div class="theme-selector">
+        <fieldset class="theme--fieldset">
+            <legend class="theme-tittle">Escolha um tema</legend>
+            <div class="theme-option">
+                <label for="light-blue">Claro / Azul</label>
+                <input type="radio" name="theme" id="light-blue" value="light-blue">
+            </div>
+            <div class="theme-option">
+                <label for="light-purple">Claro / Roxo</label>
+                <input type="radio" name="theme" id="light-purple" value="light-purple">
+            </div>
+            <div class="theme-option">
+                <label for="light-green">Claro / Verde</label>
+                <input type="radio" name="theme" id="light-green" value="light-green">
+            </div>
+            <div class="theme-option">
+                <label for="dark-blue">Escuro / Azul</label>
+                <input type="radio" name="theme" id="dark-blue" value="dark-blue">
+            </div>
+            <div class="theme-option">
+                <label for="dark-purple">Escuro / Roxo</label>
+                <input type="radio" name="theme" id="dark-purple" value="dark-purple">
+            </div>
+            <div class="theme-option">
+                <label for="dark-green">Escuro / Verde</label>
+                <input type="radio" name="theme" id="dark-green" value="dark-green">
+            </div>
+        </fieldset>
+    </div>
+    <div class="aviso-cadastros">
+        <h3>Meta de novos cadastros</h3>
+        <p>Informe o valor da sua meta de cadastros:</p>
+        <input class="aviso--input" id="inputAviso" type="number" min="50" max="9999" maxlength="4" placeholder="000" onkeyup="configAviso.LimiteAvisoInput(this)"
+               value="@aviso">
+        <button type="button" class="save-configs" onclick="Configs.SaveConfigs()">
+            Salvar configurações
+        </button>
+    </div>
+</div>

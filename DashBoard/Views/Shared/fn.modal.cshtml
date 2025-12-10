@@ -1,0 +1,230 @@
+﻿<script>
+	///DIALOG///
+	const dialog = document.querySelector('.layout__dialog');
+
+	///DIV///
+	const divMensagem = dialog.querySelector('.layout__dialog--msg');
+	const divEmpty = dialog.querySelector('.layout__dialog--empty');
+	const divLoad = dialog.querySelector('.layout__dialog--load');
+	const divImgOption = dialog.querySelector('.dialog__img--select');
+	const divUploadImage = dialog.querySelector('.dialog__upload--img');
+	const divAllImages = dialog.querySelector('.dialog__all-images');
+	const divImageSettings = dialog.querySelector('.dialog__img--select-ajusta')
+
+	///TEXTO///
+	const dialogMsg = divMensagem.querySelector('.dialog--msg');
+	const divLoadMsg = divLoad.querySelector('.dialog--msg-load');
+
+	///BUTTONS///
+	//Geral
+	const FechaModalBtn = dialog.querySelector('.layout__dialog--btn-fechar');
+	//option
+	const btnOptionSelectImages = divImgOption.querySelector('.dialog__img--select--btn-seleciona');
+	const btnOptionUploadImages = divImgOption.querySelector('.dialog__img--select--btn-insere');
+	const btnOptionImageSettings = divImgOption.querySelector('.dialog__img--select--btn-ajusta');
+	const btnOptionSettingBack = divImgOption.querySelector('.select-ajusta--btn-back');
+	//Upload
+	const btnUploadLoad = divUploadImage.querySelector('.upload--btn-up');
+	const btnUploadSend = divUploadImage.querySelector('.upload--btn-save');
+	//AllImages
+	const btnVoltar = divAllImages.querySelector('.all-images--btn-back');
+	const btnDeletar = divAllImages.querySelector('.all-images--btn-delete');
+	const btnSelecionar = divAllImages.querySelector('.all-images--btn-select');
+	//Load
+	const btnCancelLoad = divLoad.querySelector('.modal-cancel-request');
+
+	///INPUT///
+	const inputUploadImage = divUploadImage.querySelectorAll('.upload--input');
+	const inputImageHiden = divUploadImage.querySelector('.dialog__img-input--show');
+
+	class modal {
+		#fileImage = null;
+		#selecImage = null;
+		#tipoImage = null;
+		imgName = null;
+		abortRequest = false;
+		imgType = "imagem/*";
+		#callbackFunc = null;
+		OpenModal(tipo, mensagem, boolFechaBtn = false, boolCancelBtn = true, boolInputImg = false, callback = null) {
+			dialog.showModal();
+			FechaModalBtn.setAttribute('data-hidden', boolFechaBtn);
+			btnCancelLoad.setAttribute('data-hidden', boolCancelBtn);
+			this.callbackFunc = callback;
+			switch (tipo) {
+				case 'mensagem':
+					this.#SetDivOpenModal(false, true, true, true, true, true);
+					dialogMsg.innerHTML = mensagem;
+					return true;
+				case 'empty':
+					this.#SetDivOpenModal(true, false, true, true, true, true);
+					divEmpty.innerHTML = mensagem;
+					return true;
+				case 'load':
+					this.#SetDivOpenModal(true, true, false, true, true, true);
+					divLoadMsg.innerHTML = mensagem;
+					return true;
+				case 'optionImage':
+					this.#SetDivOpenModal(true, true, true, false, true, true);
+					return true;
+				case 'uploadImage':
+					this.#SetDivOpenModal(true, true, true, true, false, true);
+					inputImageHiden.setAttribute('data-hidden', true);
+					return true;
+				default:
+					this.#SetDivOpenModal(true, true, false, true, true, true);
+					divLoadMsg.innerHTML = mensagem;
+					return true;
+			}
+		}
+		FechaModalBtn() {
+			FechaModalBtn.addEventListener('click', (e) => {
+				this.CloseDialog();
+			});
+		}
+		CloseDialog() {
+			dialog.close();
+			this.#fileImage = null;
+			this.#selecImage = null;
+			this.#tipoImage = null;
+			this.imgName = null;
+			this.abortRequest = false;
+			this.imgType = "imagem/*"
+
+			dialogMsg.innerHTML = "";
+			divEmpty.innerHTML = "";
+			divLoadMsg.innerHTML = "";
+			btnCancelLoad.setAttribute('data-hidden', true);
+			let listTemp = Array.from(dialog.querySelectorAll('.tempDialog'));
+			if (listTemp.length > 0) listTemp.forEach((item) => {
+				item.remove()
+			});
+			dialog.classList.add('layout__dialog--backdrop');
+			dialog.classList.remove('layout__dialog--top');
+			if (this.callbackFunc != null && this.callbackFunc instanceof Function){
+				console.log('aqui')
+				this.callbackFunc();
+			}
+
+		}
+		SetUploadImage() {
+			btnUploadLoad.addEventListener('click', (e) => {
+				let input = btnUploadLoad.parentElement.querySelector('.tempDialog');
+				if (input == null) {
+					input = document.createElement('input');
+					input.classList.add('tempDialog');
+					input.setAttribute('data-hidden', true);
+					input.type = 'file';
+					input.accept = this.imgType;
+					btnUploadLoad.parentElement.appendChild(input);
+				}
+				input.click();
+				input.addEventListener('change', (e) => {
+					if (!input.files[0].type.includes('image/')) {
+						this.CloseDialog();
+						this.OpenModal("mensagem", "O arquivo deve ser uma imagem.");
+						return;
+					}
+					if (input.files[0].size > 1000000) {
+						this.CloseDialog();
+						this.OpenModal("mensagem", "O arquivo deve ser de no máximo 1MB.");
+						return;
+					}
+					this.fileImage = input.files[0];
+				})
+			})
+		}
+		SendUploadImage() {
+			btnUploadSend.addEventListener('click', (e) => {
+				let file = this.fileImage;
+				if (file != null) {
+					let tipo = window.location.href.substring(window.location.href.lastIndexOf('/') + 1, window.location.href.length)
+					let extension = file.name.substring(file.name.lastIndexOf('.') + 1, file.name.length);
+					let fileName = inputUploadImage[0].value;
+					let date = new Date();
+					if (this.imgName == null) {
+						if (fileName.length < 2 && this.imgName == null)
+							fileName = `img_${date.getDay()}_${date.getMonth()}_${date.getFullYear()}_${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}.${extension}`
+						else fileName += `.${extension}`;
+					}
+					else fileName = this.imgName + `.${extension}`;
+
+					this.CloseDialog();
+					this.OpenModal("load", "Salvando Imagem!", true);
+					let token = $('[name=__RequestVerificationToken]').val();
+					let headers = {};
+					headers['RequestVerificationToken'] = token;
+					const baseUrl = window.location.href;
+					const endpoint = "/SalvaImagem";
+					const url = baseUrl + endpoint;
+					var formData = new FormData();
+					formData.append("fileName", fileName);
+					formData.append("file", file);
+					formData.append("fileTipo", tipo);
+					$.ajax({
+						url: url,
+						type: 'POST',
+						contentType: false,
+						processData: false,
+						data: formData,
+						headers: headers,
+					}).done((response) => {
+						this.CloseDialog();
+						this.OpenModal("mensagem", response);
+					}).fail((error) => {
+						this.CloseDialog();
+						this.OpenModal("mensagem", "Erro ao salvar Imagem!\n")
+					});
+				}
+				else {
+					this.CloseDialog();
+					this.OpenModal("mensagem", "Nenhum arquivo foi selecionado!");
+				}
+			})
+			inputUploadImage[0].addEventListener("keypress", (e) => {
+				const char = String.fromCharCode(e.keyCode);
+				const padrao = '[a-z0-9]';
+				if (!char.match(padrao))
+					e.preventDefault();
+			})
+		}
+		#SetDivOpenModal(mensagem, empty, load, optionImage, uploadImage, allImages) {
+			divMensagem.setAttribute('data-hidden', mensagem);
+			divEmpty.setAttribute('data-hidden', empty);
+			divLoad.setAttribute('data-hidden', load);
+			divImgOption.setAttribute('data-hidden', optionImage);
+			divUploadImage.setAttribute('data-hidden', uploadImage);
+			divAllImages.setAttribute('data-hidden', allImages);
+		}
+		GetCurrentImage(image, tipo) {
+			this.#fileImage = image;
+			this.#tipoImage = tipo;
+		}
+		CancelLoad(Xhttp) {
+			btnCancelLoad.addEventListener('click', (e) => {
+				divLoadMsg.innerHTML = "Cancelando...";
+				this.abortRequest = true;
+				Xhttp.abort();
+			})
+		}
+		CancelLoadResponse(headers) {
+			setTimeout(() => {
+				$.ajax({
+					url: './GetResponseString',
+					type: 'GET',
+					headers: headers,
+				}).done((response) => {
+					this.CloseDialog();
+					this.OpenModal("mensagem", response);
+				}).fail(() => {
+					this.CloseDialog();
+					this.OpenModal("mensagem", "Operação cancelada \r\n Erro ao obter resposta do servidor.");
+				});
+				this.abortRequest = false;
+			}, 3000)
+		}
+	}
+
+	const modalClass = new modal();
+	modalClass.FechaModalBtn();
+
+</script>

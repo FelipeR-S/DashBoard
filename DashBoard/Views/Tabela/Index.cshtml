@@ -1,0 +1,60 @@
+﻿@using Newtonsoft.Json;
+@{
+	ViewData["Title"] = "Tabelas";
+	Layout = "_LayoutDashboard";
+	var permissoes = Context.Session.GetString("PermissoesCache");
+	var lista = permissoes != null
+		? JsonConvert.DeserializeObject<List<Permissoes>>(permissoes)
+		: new List<Permissoes>();
+	var permissao = lista?.FirstOrDefault(x => x.Atividade == DashBoard.Models.Enums.Atividade.Tabelas);
+	ViewData["Permissao"] = permissao;
+}
+<asp:Content ID="Tabelas" ContentPlaceHolderID="Tabelas" runat="server">
+	<link rel="stylesheet" href="~/css/dashboardPanels/tabelas.css" asp-append-version="true">
+</asp:Content>
+@model List<Cliente>
+@{
+	var paginado = new PaginadoInfo()
+			{
+				TotalDeRegistros = Model?.FirstOrDefault()?.QuantidadeDeRegistros ?? 0
+			};
+	var filtroAtual = (ClienteFiltroModelo?)TempData["FiltroAtual"] ?? new ClienteFiltroModelo();
+}
+<form method="post"></form>
+
+<div class="display__layout">
+	<h1>Tabela de Banco de dados</h1>
+	<div class="controle__tabela">
+		<partial name="_PartialClienteFiltro" model="@filtroAtual" />
+	</div>
+	<div class="tabela__panel-buttons">
+		<div class="tabela__panel-buttons--actions">
+			<button type="button" class="buttons--actions__btn actions__btn--seleciona-tudo" data-selected="false" onclick="controles.SelecionaTudo(this)">
+				<i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-pen-to-square"></i>Selecionar Tudo
+			</button>
+			@if (permissao != null && permissao.Excluir)
+			{
+				<button type="button" class="buttons--actions__btn actions__btn--deleta" onclick="ModalTabela.BtnExcluiRows()">
+					<i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-trash-can"></i>Deletar
+				</button>				
+			}
+			<button type="button" class="buttons--actions__btn actions__btn--exporta" onclick="ModalTabela.BtnExportExcel()">
+				<i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-download"></i>Exportar
+			</button>
+			@if (permissao != null && permissao.Editar)
+			{
+				<button type="button" class="buttons--actions__btn actions__btn--envia" onclick="controles.EnviaEmail()">
+					<i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-envelope"></i>Enviar e-mails
+				</button>
+			}
+			<a asp-action="Index" asp-controller="Email"></a>
+		</div>
+		<div id="tabela-filtro-paginador" class="tabela__panel-buttons--actions">
+			<partial name="_PartialPaginador" model="@paginado" />
+		</div>
+	</div>
+	<div class="tabela__layout" id="tabela-clientes">
+		<partial name="_PartialListaCliente" model="@Model"/>
+	</div>
+</div>
+<partial name="fn.Tabelas" />

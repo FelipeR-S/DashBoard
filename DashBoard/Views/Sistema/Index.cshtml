@@ -1,0 +1,50 @@
+﻿@using static DashBoard.Controllers.SistemaController
+@using Newtonsoft.Json;
+@model RolesEUsers
+@{
+    ViewData["Title"] = "Configuração do sistema";
+    Layout = "_LayoutDashboard";
+    ViewData["RolesSelect"] = Model.Roles?.Any() == true
+    ? Model.Roles.Select(x => new SelectListItem() { Text = x.Nome, Value = x.Id.ToString() })
+    : new List<SelectListItem>();
+    var permissoes = Context.Session.GetString("PermissoesCache");
+    var lista = permissoes != null
+        ? JsonConvert.DeserializeObject<List<Permissoes>>(permissoes)
+        : new List<Permissoes>();
+    var permissao = lista?.FirstOrDefault(x => x.Atividade == DashBoard.Models.Enums.Atividade.Configs);
+    ViewData["Permissao"] = permissao;
+}
+<asp:Content ID="Sistema" ContentPlaceHolderID="Sistema" runat="server">
+    <link rel="stylesheet" href="~/css/dashboardPanels/configs.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/dashboardPanels/emails.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/dashboardPanels/tabelas.css" asp-append-version="true">
+    <link rel="stylesheet" href="~/css/dashboardPanels/sistema.css" asp-append-version="true">
+</asp:Content>
+<div class="display__layout">
+    <h3>Roles</h3>
+    @if (permissao is not null && (permissao.Editar || permissao.Salvar))
+    {
+        <div id="panel-roles" data-hidden="true">
+            <partial name="_PartialRoleForm" model="@(new Role())" />
+        </div>
+        <button type="button" id="btn-role" data-hidden="false" class="buttons--actions__btn actions__btn--seleciona-tudo" onclick="System.BuscarRole(0)">Nova Role</button>
+    }
+    <div id="panel-lista-roles">
+        <partial name="_PartialRoles" model="@Model.Roles" />
+    </div>
+</div>
+<br>
+<div class="display__layout">
+    <h3>Usuários</h3>
+    @if (permissao is not null && permissao.Salvar)
+    {
+        <div id="panel-users" data-hidden="true">
+            <partial name="_PartialNewUser" model="@(new User())" />
+        </div>
+        <button type="button" id="btn-newuser" data-hidden="false" class="buttons--actions__btn actions__btn--seleciona-tudo" onclick="System.openPanel(this, '#panel-lista-users', '#panel-users')">Novo Usuário</button>        
+    }
+    <div id="panel-lista-users">
+        <partial name="_PartialUsers" model="@Model.Users" />
+    </div>
+</div>
+<partial name="fn.Sistema" />

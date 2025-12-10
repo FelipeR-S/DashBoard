@@ -1,0 +1,286 @@
+:root {
+  --cor-orange: #ff6c0a;
+  --cor-purple: #322a85;
+  --cor-purple-ligth: #58519b;
+  --cor-black: rgb(27, 27, 27);
+}
+
+.login-layout {
+  position: relative;
+  width: 100%;
+  height: 95vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+*[data-hidden=true]{
+    display: none !important;
+}
+
+button[disabled],
+button[disabled]:hover {
+    background-color: rgba(155,155,155,1) !important;
+    cursor: default !important;
+    border-color: rgba(155,155,155,1) !important;
+}
+
+.aviso{
+    color: crimson;
+    text-align: left;
+    width: 100%;
+    font-size: .8rem;
+}
+
+.waves {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    z-index: -1;
+    width: 100%;
+    height: 15vh;
+    min-height: 150px;
+    max-height: 150px;
+}
+
+.parallax > use {
+  animation: moveForever 25s cubic-bezier(0.55, 0.5, 0.45, 0.5) infinite;
+}
+
+.parallax > use:nth-child(1) {
+  animation-delay: -4s;
+  animation-duration: 20s;
+}
+
+.parallax > use:nth-child(2) {
+  animation-delay: -6s;
+  animation-duration: 30s;
+}
+
+.parallax > use:nth-child(3) {
+  animation-delay: -8s;
+  animation-duration: 40s;
+}
+
+.parallax > use:nth-child(4) {
+  animation-delay: -10s;
+  animation-duration: 50s;
+}
+
+@keyframes moveForever {
+  0% {
+    transform: translate3d(-90px, 0, 0);
+  }
+  100% {
+    transform: translate3d(85px, 0, 0);
+  }
+}
+
+.spin {
+    display: inline-block;
+    animation: girar 1s linear infinite;
+}
+
+@keyframes girar {
+    from {
+        transform: rotate(0deg);
+    }
+
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+.login-form {
+  display: block;
+  width: 90%;
+  margin: 0 auto;
+  background-color: whitesmoke;
+  padding: 15%;
+  border-radius: 0.7rem;
+  box-shadow: 0.5rem 0.5rem 0.8rem rgba(0, 0, 0, 0.3);
+  color: var(--cor-black);
+}
+
+.erro-login {
+  color: red;
+}
+
+form {
+  display: flex;
+  flex-flow: column nowrap;
+  justify-content: center;
+  align-items: center;
+}
+.form-group-login {
+  position: relative;
+  margin-top: 1rem;
+  width: 100%;
+}
+
+.form-group-login label {
+  font-weight: 700;
+}
+.form-group-login label b {
+  color: var(--cor-purple);
+}
+
+input {
+  margin: 0;
+  margin-top: 2%;
+  width: 98%;
+  height: 3rem;
+  text-align: center;
+  border: 0.12rem solid rgb(124, 124, 124);
+  border-radius: 0.8rem;
+  background-color: transparent;
+  color: var(--cor-purple);
+  animation: none;
+}
+
+input:focus {
+  outline: 0.15rem solid var(--cor-purple) !important;
+}
+
+/* Icons */
+.form-group-login .check {
+    position: absolute;
+    bottom: calc(1.5rem - .5em);
+    margin: 0;
+    left: 1em;
+}
+
+.form-group-login .fa-eye, .form-group-login .fa-eye-slash {
+    position: absolute;
+    bottom: calc(1.5rem - .5em);
+    right: 1.5rem;
+    margin: 0;
+    color: var(--cor-purple);
+    cursor: pointer;
+    transition: all 250ms;
+}
+
+.form-group-login .fa-check {
+  color: limegreen;
+  display: none;
+}
+
+.form-group-login .fa-xmark {
+    color: red;
+    display: none;
+}
+
+@keyframes shake {
+  25% {
+    transform: translateX(7px);
+  }
+  50% {
+    transform: translateX(-7px);
+  }
+  75% {
+    transform: translateX(7px);
+  }
+}
+
+.recupera-senha-link {
+  font-size: 0.8rem;
+  align-self: flex-end;
+  text-decoration: none;
+  color: rgb(26, 26, 26);
+  margin-top: 2%;
+  transition: color 350ms;
+}
+
+.recupera-senha-link:hover,
+.recupera-senha-link:focus {
+  color: var(--cor-purple);
+}
+
+button {
+  width: 100%;
+  height: 3rem;
+  margin-top: 2rem;
+  text-transform: uppercase;
+  font-weight: 700;
+  background-color: var(--cor-purple);
+  border-radius: 0.8rem;
+  border: 0.2rem solid var(--cor-purple);
+  color: white;
+  cursor: pointer;
+  transition: all 350ms;
+}
+
+button:hover,
+button:focus {
+  background-color: var(--cor-purple-ligth);
+  border: 0.2rem solid var(--cor-purple-ligth);
+}
+
+/* Recuperação de Email*/
+.recupera-login {
+  display: none;
+  width: 90%;
+  margin: 0 auto;
+  background-color: whitesmoke;
+  padding: 10%;
+  border-radius: 0.7rem;
+  box-shadow: 0.5rem 0.5rem 0.8rem rgba(0, 0, 0, 0.3);
+  color: var(--cor-black);
+  text-align: center;
+}
+
+    .recupera-login input,
+    .recupera-login p {
+        margin: 0;
+        margin-top: 5%;
+    }
+
+.recupera-login button {
+  margin-top: 5%;
+  text-transform: none;
+}
+
+.buttons-recupera {
+  width: 100%;
+  gap: 1rem;
+}
+
+.buttons-recupera button {
+  max-width: 100%;
+}
+
+.envia-recupera {
+  background-color: var(--cor-orange);
+  border-color: var(--cor-orange);
+}
+
+.envia-recupera:hover,
+.envia-recupera:focus {
+  background-color: maroon;
+  border-color: maroon;
+}
+
+@media (min-width: 720px) {
+  .login-form {
+    width: 50%;
+    padding: 5%;
+  }
+  .buttons-recupera {
+    display: flex;
+  }
+  .recupera-login {
+    width: 50%;
+    padding: 3%;
+  }
+}
+
+@media (min-width: 1500px) {
+  .login-form {
+    width: 25%;
+    padding: 3%;
+  }
+    .recupera-login {
+        width: 25%;
+        padding: 3%;
+    }
+}

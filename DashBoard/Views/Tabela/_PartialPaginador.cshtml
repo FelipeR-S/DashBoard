@@ -1,0 +1,53 @@
+﻿@using DashBoard.Services
+@using DashBoard.Models.Enums;
+@model PaginadoInfo
+@{
+    var voltar = Model.PaginaAtual > 0;
+    var avancar = Model.PaginaAtual < Model.TotalDePaginas;
+}
+@Html.HiddenFor(m => m.PaginaAtual)
+@Html.HiddenFor(m => m.TotalDePaginas)
+@Html.HiddenFor(m => m.TotalDeRegistros)
+<input type="hidden" id="pagina" />
+<input type="hidden" id="quantidadePagina" />
+<div class="select--nav-quantidade">
+    <span>@(Model.TotalDePaginas + 1) Páginas&emsp;|&emsp;</span>
+    <span>@Model.TotalDeRegistros Registros&emsp;|&emsp;</span>
+    <span class="nav-quantidade__desc--select"> Exibir:</span>
+    @Html.DropDownListFor(m => m.QuantidadePorPagina, new List<SelectListItem>
+    {
+        new SelectListItem { Text = "10", Value = "10" },
+        new SelectListItem { Text = "20", Value = "20" },
+        new SelectListItem { Text = "30", Value = "30" }
+        }, new { @class = "tabela--select select--item", onchange = "controles.AlteraQuantidade(this)" })
+</div>
+<div class="tabela__panel-buttons--nav">
+    <button class="panel-buttons--nav buttons--nav__primeiro" onclick="controles.Posicao(0)" disabled="@(!voltar)">
+        <i class="tabela--ico fa-solid fa-angles-left"></i>
+    </button>
+    <button class="panel-buttons--nav buttons--nav__anterior" onclick="controles.Posicao(@(Model.PaginaAtual - 1))" disabled="@(!voltar)">
+        <i class="tabela--ico fa-solid fa-angle-left"></i>
+    </button>
+    @if (Model.PaginaAtual - 3 > -1)
+    {
+        <span class="panel-buttons--nav">...</span>
+    }
+    @for (int i = 0; i < Model.TotalDePaginas + 1; i++)
+    {
+        <button class="panel-buttons--nav buttons--nav__posicao" onclick="controles.Posicao(@i)"
+            aria-checked="@((Model.PaginaAtual == i).ToString().ToLower())" 
+                data-hidden="@((i < (Model.PaginaAtual - 2) || i > (Model.PaginaAtual + 2)).ToString().ToLower())">
+            @(i + 1)
+        </button>
+    }
+    @if (Model.PaginaAtual + 3 < Model.TotalDePaginas)
+    {
+        <span class="panel-buttons--nav">...</span>
+    }
+    <button class="panel-buttons--nav buttons--nav__posterior" onclick="controles.Posicao(@(Model.PaginaAtual + 1))" disabled="@(!avancar)">
+        <i class="tabela--ico fa-solid fa-angle-right"></i>
+    </button>
+    <button class="panel-buttons--nav buttons--nav__ultimo" onclick="controles.Posicao(@Model.TotalDePaginas)" disabled="@(!avancar)">
+        <i class="tabela--ico fa-solid fa-angles-right"></i>
+    </button>
+</div>

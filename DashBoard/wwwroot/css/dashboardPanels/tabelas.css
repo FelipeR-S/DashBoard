@@ -1,0 +1,376 @@
+@import "./dashboardmenu.css";
+
+.display__layout {
+  max-width: 100%;
+  padding: 5%;
+  margin: 0;
+  border-radius: 1rem;
+  background-color: var(--background-item);
+}
+
+.tabela--ico {
+  font-size: 1rem !important;
+}
+
+/* SELECT GERAL */
+.tabela--select {
+  border: 1px solid #c1c3d1;
+  height: 2rem;
+  border-radius: 2rem;
+  padding-inline: 0.5rem;
+  text-align: left;
+  background: var(--background);
+  color: var(--font-color);
+}
+
+/* controle chamada tabela */
+.controle__tabela {
+  width: 90%;
+  margin: 0 auto;
+  margin-bottom: 2rem;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.controle__tabela--filtros {
+  text-align: center;
+  margin-bottom: 1rem;
+}
+
+.filtros__gerais {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 2rem;
+  align-items: center;
+  margin-block: 2rem;
+}
+
+.detalhe--item {
+  display: flex;
+  flex-direction: column;
+}
+
+.controle__tabela--load-btn {
+  width: max-content;
+  padding-inline: 1.5rem;
+  height: 2.5rem;
+  border-radius: 2rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  word-spacing: 0.25rem;
+  background: var(--theme-color);
+  color: var(--font-color-inverse);
+  border: 0.2rem solid var(--theme-color);
+  transition: all 350ms ease-in-out;
+  margin: 0 auto;
+}
+
+.controle__tabela--load-btn:hover,
+.controle__tabela--load-btn:focus,
+.controle__tabela--load-btn:active {
+  background: none;
+  color: var(--theme-color);
+  box-shadow: 0 0 10px var(--theme-color);
+}
+
+/* painel ações */
+.tabela__panel-buttons {
+  background: var(--background-item);
+  border: 1px solid #c1c3d1;
+  border-bottom: none;
+  margin: 0 auto;
+  border-radius: 1rem 1rem 0 0;
+  overflow: hidden;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  justify-content: center;
+  padding: 5%;
+}
+
+.tabela__panel-buttons--actions,
+.tabela__panel-buttons--nav {
+  width: 100%;
+  display: flex;
+  flex-flow: row wrap;
+  justify-content: center;
+  gap: .5rem;
+}
+
+.buttons--actions__btn {
+  display: inline-flex;
+  align-items: center;
+  color: var(--font-color-inverse);
+  border: none;
+  border-radius: 0.25rem;
+  width: fit-content;
+  height: 2.5rem;
+  text-align: center;
+  margin-right: 0.5rem;
+  transition: all 400ms ease-in-out;
+  outline: none;
+}
+
+.actions__btn--envia,
+.actions__btn--seleciona-tudo{
+  background: var(--theme-color-gradient);
+}
+
+.actions__btn--deleta{
+  background: linear-gradient(90deg, darkred, red);
+}
+
+.export--btn-download,
+.actions__btn--exporta{
+  background: linear-gradient(90deg, darkgreen, green);
+
+}
+
+.actions__btn--envia,
+.actions__btn--seleciona-tudo,
+.actions__btn--deleta,
+.export--btn-download,
+.actions__btn--exporta{  
+  background-size: 1500%;
+  background-position: 0%;
+}
+
+.export--btn-download:active,
+.export--btn-download:focus,
+.export--btn-download:hover,
+.buttons--actions__btn:hover,
+.buttons--actions__btn:focus,
+.buttons--actions__btn:active {
+  background-position: 100%;
+
+}
+
+
+.tabela__panel-buttons--ico {
+  margin-right: 0.5rem;
+}
+
+/* Painel Navegação */
+.panel-buttons--nav {
+  border-radius: 2rem;
+  border: none;
+  color: var(--font-color);
+  background: transparent;
+  margin-inline: 0.5%;
+  transition: all 400ms ease-in-out;
+}
+
+    .panel-buttons--nav[disabled] {
+        color: rgb(155,155,155) !important;
+        cursor: default !important;
+        background: transparent !important;
+    }
+
+    .buttons--nav__posicao[aria-checked="true"],
+    .panel-buttons--nav:hover:not(span),
+    .panel-buttons--nav:focus:not(span),
+    .panel-buttons--nav:active:not(span) {
+        outline: none;
+        background-color: var(--theme-color);
+        color: var(--font-color-inverse);
+    }
+
+    .buttons--nav__posicao {
+        width: 2.3rem;
+        height: 2rem;
+        border: none;
+        background: none;
+        color: var(--font-color);
+        font-weight: 700;
+        border-radius: 50%;
+        margin-inline: 0.25rem;
+    }
+
+/* painel tabela */
+.tabela__layout {
+  position: relative;
+  background-color: var(--background-item);
+  width: calc(100% - 2px);
+  overflow: auto;
+  border: 1px solid #c1c3d1;
+}
+
+.tabela-fill {
+  border-collapse: collapse;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.tabela-head {
+  display: none;
+}
+
+.tabela-checkbox {
+  color: var(--theme-color);
+  accent-color: var(--theme-color);
+}
+
+.tabela-row:hover .tabela-data {
+  background: var(--theme-color);
+  color: var(--font-color-inverse);
+}
+
+.tabela-row:nth-child(odd) .tabela-data {
+  background: var(--background);
+}
+
+.tabela-row:nth-child(odd):hover .tabela-data {
+  background: var(--theme-color);
+}
+
+/* Layout Celula */
+.tabela-row {
+    display: table-row;
+}
+
+.tabela-data {
+    background: var(--background-item);
+    text-align: left;
+    vertical-align: middle;
+    font-weight: 400;
+    padding: .5rem;
+    display: flex;
+    flex-wrap: wrap; 
+    gap: 1rem;
+    align-items: center;
+}
+
+.mobile-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex: 1;
+    min-width: 0;
+}
+
+.tabela-checkbox {
+    margin-right: .5rem;
+}
+
+.mobile-dados {
+    width: 100%;
+}
+
+.desktop-row {
+    display: none;
+}
+
+.tabela-data:first-of-type {
+    justify-content: center;
+    grid-column-start: 1;
+    grid-column-end: 1;
+    grid-row-start: 1;
+}
+
+.hide-rows-btn {
+  display: inline;
+  border: none;
+  background: none;
+  color: var(--font-color);
+  width: 5rem;
+  transform: scaleY(1);
+}
+
+.show-rows-btn {
+  transform: scaleY(-1);
+}
+
+/* SELECT */
+
+.select--nav-quantidade {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: max-content;
+}
+
+.select--item {
+  text-align: center;
+  margin-inline: 1rem;
+  width: fit-content;
+}
+
+@media (min-width: 720px) {
+    .mobile-row {
+        display: none;
+    }
+    
+    .desktop-row {
+        display: block;
+    }
+  .filtros__detalhes--btn{
+    margin-left: 1rem;
+    width: 2.5rem;
+  }
+  
+  /* painel ações */
+
+  .tabela__panel-buttons--actions,
+.tabela__panel-buttons--nav {
+  flex-flow: row nowrap;
+}
+  .tabela__panel-buttons {
+    width: 90%;
+    gap: 1rem;
+    flex-flow: row wrap;
+    justify-content: space-around;
+    padding: 1%;
+    padding-inline: 5%;
+  }
+
+  .tabela__panel-buttons--actions,
+  .tabela__panel-buttons--nav {
+    width: fit-content;
+    padding-block: 0.5rem;
+    display: flex;
+    align-items: center;
+  }
+
+  /* Painel Navegação */
+
+  /*** Tabela Styles ***/
+  .tabela__layout {
+    width: 90%;
+    margin: 0 auto;
+  }
+  /* Cabeçalho */
+
+  .tabela-head {
+    display: table-header-group;
+    background: var(--theme-color-gradient);
+    border-left: 1px solid #c1c3d1;
+    border-right: 1px solid #c1c3d1;
+  }
+
+  .tabela-head-item {
+    color: var(--font-color-inverse);
+    font-weight: 700;
+    padding: 1rem;
+    text-align: center;
+    vertical-align: middle;
+  }
+
+  .tabela-data {
+    padding: 1rem;
+    text-align: center;
+    width: auto;
+    display: table-cell;
+    white-space: nowrap;
+  }
+
+  .hide-rows-btn {
+    display: none;
+  }
+}
+
+::-webkit-calendar-picker-indicator {
+    filter: invert(1);
+    cursor: pointer;
+}

@@ -1,0 +1,44 @@
+﻿@model List<DashBoard.Models.Role>
+@{
+    var permissao = ViewData["Permissao"] as Permissoes;
+}
+<div class="panel-list">
+    @if (Model?.Any() == true)
+    {
+        foreach (var role in Model)
+        {
+            <div class="emails__layout">
+                <div class="emails__assunto"><span><b>Id:&emsp;</b></span>@role.Id</div>
+                <div class="emails__assunto"><span><b>Nome:&emsp;</b></span>@role.Nome</div>
+                <div class="emails__assunto">
+                    @if (role.Id > 2 && permissao is not null && (permissao.Editar || permissao.Excluir))
+                    {
+                        <span><b>Ações:&emsp;</b></span>
+                        @if (permissao.Editar)
+                        {
+                            <button type="button" title="Editar" class="buttons--actions__btn actions__btn--envia" onclick="System.BuscarRole(@role.Id)">
+                                <i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-pen-to-square"></i>
+                                Editar
+                            </button>                            
+                        }
+                        @if (permissao.Excluir)
+                        {
+                            <button type="button" title="Remover" class="buttons--actions__btn actions__btn--deleta" onclick="System.ExcluirRole(@role.Id)">
+                                <i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-trash-can"></i>
+                                Deletar
+                            </button>                            
+                        }
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="emails__layout">
+            Sem registros...
+        </div>
+    }
+</div>
+<br>
+<p>Total de roles: @(Model != null ? Model.Count() : 0)</p>

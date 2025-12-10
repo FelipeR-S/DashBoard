@@ -1,0 +1,110 @@
+[
+  {
+    "EstadoNome": "São Paulo",
+    "UF": "SP"
+  },
+  {
+    "EstadoNome": "Rio de Janeiro",
+    "UF": "RJ"
+  },
+  {
+    "EstadoNome": "Amapá",
+    "UF": "AP"
+  },
+  {
+    "EstadoNome": "Amazonas",
+    "UF": "AM"
+  },
+  {
+    "EstadoNome": "Bahia",
+    "UF": "BA"
+  },
+  {
+    "EstadoNome": "Ceará",
+    "UF": "CE"
+  },
+  {
+    "EstadoNome": "Distrito Federal",
+    "UF": "DF"
+  },
+  {
+    "EstadoNome": "Espírito Santo",
+    "UF": "ES"
+  },
+  {
+    "EstadoNome": "Goiás",
+    "UF": "GO"
+  },
+  {
+    "EstadoNome": "Maranhão",
+    "UF": "MA"
+  },
+  {
+    "EstadoNome": "Mato Grosso",
+    "UF": "MT"
+  },
+  {
+    "EstadoNome": "Mato Grosso do Sul",
+    "UF": "MS"
+  },
+  {
+    "EstadoNome": "Minas Gerais",
+    "UF": "MG"
+  },
+  {
+    "EstadoNome": "Pará",
+    "UF": "PA"
+  },
+  {
+    "EstadoNome": "Paraíba",
+    "UF": "PB"
+  },
+  {
+    "EstadoNome": "Paraná",
+    "UF": "PR"
+  },
+  {
+    "EstadoNome": "Pernambuco",
+    "UF": "PE"
+  },
+  {
+    "EstadoNome": "Piauí",
+    "UF": "PI"
+  },
+  {
+    "EstadoNome": "Alagoas",
+    "UF": "AL"
+  },
+  {
+    "EstadoNome": "Rio Grande do Norte",
+    "UF": "RN"
+  },
+  {
+    "EstadoNome": "Rio Grande do Sul",
+    "UF": "RS"
+  },
+  {
+    "EstadoNome": "Rondônia",
+    "UF": "RO"
+  },
+  {
+    "EstadoNome": "Roraima",
+    "UF": "RR"
+  },
+  {
+    "EstadoNome": "Santa Catarina",
+    "UF": "SC"
+  },
+  {
+    "EstadoNome": "Acre",
+    "UF": "AC"
+  },
+  {
+    "EstadoNome": "Sergipe",
+    "UF": "SE"
+  },
+  {
+    "EstadoNome": "Tocantins",
+    "UF": "TO"
+  }
+]

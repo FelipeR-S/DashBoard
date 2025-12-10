@@ -1,0 +1,441 @@
+﻿<script>
+    const colorTheme = getComputedStyle(document.body).getPropertyValue('--theme-color');
+    const colorItem = getComputedStyle(document.body).getPropertyValue('--background-item');
+    const fontColor = getComputedStyle(document.body).getPropertyValue('--font-color');
+
+    function setHoverStroke(divGrafico, chart, colorTheme) {
+        google.visualization.events.addListener(chart, 'ready', function() {
+            Array.prototype.forEach.call(divGrafico.getElementsByTagName('path'), function(path) {
+                path.setAttribute('stroke', 'transparent');
+            });
+        });
+        google.visualization.events.addListener(chart, 'onmouseover', function() {
+            Array.prototype.forEach.call(divGrafico.getElementsByTagName('path'), function(path) {
+                path.setAttribute('stroke', colorTheme);
+            });
+        });
+        google.visualization.events.addListener(chart, 'onmouseout', function() {
+            Array.prototype.forEach.call(divGrafico.getElementsByTagName('path'), function(path) {
+                path.setAttribute('stroke', 'transparent');
+            });
+        });
+    }
+
+    function hexToRgb(hex) {
+        var result = /^#?([a-f\d]{2})([a-f\d]{2})([a-f\d]{2})$/i.exec(hex);
+        return result ? {
+            r: parseInt(result[1], 16),
+            g: parseInt(result[2], 16),
+            b: parseInt(result[3], 16)
+        } : null;
+    }
+
+    function rgbToHex(r, g, b) {
+        return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+    }
+
+    function changeColorIntensitiveHex(hex, Value, add) {
+        var rgb = hexToRgb(hex);
+        if (rgb == null)
+            return colorTheme;
+
+        if (add) {
+            var r = rgb.r + Value > 255 ? 255 : rgb.r + Value;
+            var g = rgb.g + Value > 255 ? 255 : rgb.g + Value;
+            var b = rgb.b + Value > 255 ? 255 : rgb.b + Value;
+        }
+        else {
+            var r = rgb.r - Value < 0 ? 0 : rgb.r + Value;
+            var g = rgb.g - Value < 0 ? 0 : rgb.g + Value;
+            var b = rgb.b - Value < 0 ? 0 : rgb.b + Value;
+        }
+
+        return rgbToHex(r, g, b);
+    }
+
+    function setIconColor(obj) {
+        obj.forEach(o => {
+            var icon = document.getElementById('icon_' + o.id);
+            icon.style.setProperty("background", o.cor);
+        });
+    }
+
+    function meta() {
+        var divGrafico = document.getElementById('meta--grafico');
+        var quantidadeCadastros = parseInt(document.getElementById('StatsMeta_Meta_Quantidade').value);
+        var faltante = parseInt(document.getElementById('MetaFaltante').value);
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        data.addRows([
+            ['Total Atual', quantidadeCadastros],
+            ['Faltante', faltante],
+        ]);
+
+        var meta = [
+            { id: 'StatsMeta_Quantidade', desc: 'Quantidade', valor: quantidadeCadastros, cor: colorTheme },
+            { id: 'StatsMeta_Meta', desc: 'Meta', valor: 0, cor: changeColorIntensitiveHex(colorTheme, 100, true) },
+        ];
+
+        var options = {
+            width: 250,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            pieHole: 0.5,
+            chartArea: { height: '80%' },
+            colors: [colorTheme, colorItem],
+            pieSliceText: 'none',
+            tooltip: { isHtml: true },
+            fontSize: 12,
+        };
+        var chart = new google.visualization.PieChart(divGrafico);
+        setHoverStroke(divGrafico, chart, colorTheme);
+        chart.draw(data, options);
+        setIconColor(meta);
+    }
+
+    function genero() {
+        var divGrafico = document.getElementById('genero--grafico');
+        var masc = parseInt(document.getElementById('StatsGenero_Masculino_Quantidade').value);
+        var fem = parseInt(document.getElementById('StatsGenero_Feminino_Quantidade').value);
+        var outro = parseInt(document.getElementById('StatsGenero_Outros_Quantidade').value);
+        var naoDeclarado = parseInt(document.getElementById('StatsGenero_NaoDeclarado_Quantidade').value);
+
+        var generos = [
+            { id: 'StatsGenero_Masculino', desc: 'Masculino', valor: masc, cor: colorTheme },
+            { id: 'StatsGenero_Feminino', desc: 'Feminino', valor: fem, cor: changeColorIntensitiveHex(colorTheme, 100, true) },
+            { id: 'StatsGenero_Outros', desc: 'Outros', valor: outro, cor: changeColorIntensitiveHex(colorTheme, 100, false) },
+            { id: 'StatsGenero_NaoDeclarado', desc: 'Nenhum', valor: naoDeclarado, cor: colorItem },
+        ];
+
+        var data = google.visualization.arrayToDataTable([
+            ["Gênero", "", { role: "style" }],
+            [generos[0].desc, generos[0].valor, generos[0].cor],
+            [generos[1].desc, generos[1].valor, generos[1].cor],
+            [generos[2].desc, generos[2].valor, generos[2].cor],
+            [generos[3].desc, generos[3].valor, generos[3].cor],
+        ]);
+
+        var view = new google.visualization.DataView(data);
+
+        var options = {
+            width: 600,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            chartArea: { width: '80%' },
+            tooltip: { isHtml: true },
+            fontSize: 12,
+            hAxis: { textStyle: { color: fontColor } },
+            vAxis: { textStyle: { color: fontColor } }
+        };
+        var chart = new google.visualization.ColumnChart(divGrafico);
+        chart.draw(view, options);
+        setIconColor(generos);
+    }
+
+    function renda() {
+        var divGrafico = document.getElementById('renda--grafico');
+        var maior4 = parseInt(document.getElementById('StatsRenda_Maior_4_mil_Quantidade').value);
+        var maior3 = parseInt(document.getElementById('StatsRenda_Maior_3_Menor_4_mil_Quantidade').value);
+        var maior2 = parseInt(document.getElementById('StatsRenda_Maior_2_Menor_3_mil_Quantidade').value);
+        var maior1 = parseInt(document.getElementById('StatsRenda_De_1_Menor_2_mil_Quantidade').value);
+        var naoDeclarado = parseInt(document.getElementById('StatsRenda_NaoDeclarado_Quantidade').value);
+
+        var renda = [
+            { id: 'StatsRenda_Maior_4_mil', desc: 'maior 4 mil', valor: maior4, cor: colorTheme },
+            { id: 'StatsRenda_Maior_3_Menor_4_mil', desc: 'entre 3 e 4 mil', valor: maior3, cor: changeColorIntensitiveHex(colorTheme, 100, true) },
+            { id: 'StatsRenda_Maior_2_Menor_3_mil', desc: 'entre 2 e 3 mil', valor: maior2, cor: changeColorIntensitiveHex(colorTheme, 100, false) },
+            { id: 'StatsRenda_De_1_Menor_2_mil', desc: 'de 1 a 2 mil', valor: maior1, cor: changeColorIntensitiveHex(colorTheme, 150, false) },
+            { id: 'StatsRenda_NaoDeclarado', desc: 'Nenhum', valor: naoDeclarado, cor: colorItem },
+        ];
+
+        generateChartPie(renda, divGrafico, true);
+    }
+
+    function fgts() {
+        var divGrafico = document.getElementById('fgts--grafico');
+        var possui = parseInt(document.getElementById('StatsFGTS_Possui_Quantidade').value);
+        var naoPossui = parseInt(document.getElementById('StatsFGTS_NaoPossui_Quantidade').value);
+        var naoDeclarado = parseInt(document.getElementById('StatsFGTS_NaoDeclarado_Quantidade').value);
+
+        var fgts = [
+            { id: 'StatsFGTS_Possui', desc: 'Não Possui', valor: possui, cor: colorTheme },
+            { id: 'StatsFGTS_NaoPossui', desc: 'Possui', valor: naoPossui, cor: changeColorIntensitiveHex(colorTheme, 100, true) },
+            { id: 'StatsFGTS_NaoDeclarado', desc: 'Nenhum', valor: naoDeclarado, cor: colorItem },
+        ];
+
+        var data = google.visualization.arrayToDataTable([
+            ['FGTS', '', { role: 'style' }],
+            [fgts[0].desc, fgts[0].valor, fgts[0].cor],
+            [fgts[1].desc, fgts[1].valor, fgts[1].cor],
+            [fgts[2].desc, fgts[2].valor, fgts[2].cor],
+        ]);
+
+        var view = new google.visualization.DataView(data);
+
+        var options = {
+            width: 600,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            tooltip: { isHtml: true },
+            fontSize: 12,
+            chartArea: { width: '70%' },
+            hAxis: { textStyle: { color: fontColor } },
+            vAxis: { textStyle: { color: fontColor } }
+        };
+        var chart = new google.visualization.BarChart(divGrafico);
+        chart.draw(view, options);
+        setIconColor(fgts);
+    }
+
+    function idade() {
+        var divGrafico = document.getElementById('idade--grafico');
+        var m55 = parseInt(document.getElementById('StatsIdade_Maior_55_anos_Quantidade').value);
+        var e36e55 = parseInt(document.getElementById('StatsIdade_Entre_36_55_anos_Quantidade').value);
+        var e26e35 = parseInt(document.getElementById('StatsIdade_Entre_26_35_anos_Quantidade').value);
+        var e19e25 = parseInt(document.getElementById('StatsIdade_Entre_19_25_anos_Quantidade').value);
+        var ate18 = parseInt(document.getElementById('StatsIdade_Ate_18_Anos_Quantidade').value);
+        var naoDeclarado = parseInt(document.getElementById('StatsIdade_NaoDeclarado_Quantidade').value);
+
+        var idades = [
+            { id: 'StatsIdade_Maior_55_anos', desc: 'Maior 55', valor: m55, cor: colorTheme },
+            { id: 'StatsIdade_Entre_36_55_anos', desc: 'Entre 36 e 55', valor: e36e55, cor: changeColorIntensitiveHex(colorTheme, 100, true) },
+            { id: 'StatsIdade_Entre_26_35_anos', desc: 'Entre 26 e 35', valor: e26e35, cor: changeColorIntensitiveHex(colorTheme, 100, false) },
+            { id: 'StatsIdade_Entre_19_25_anos', desc: 'Entre 19 e 25', valor: e19e25, cor: changeColorIntensitiveHex(colorTheme, 150, false) },
+            { id: 'StatsIdade_Ate_18_Anos', desc: 'Até 18', valor: ate18, cor: changeColorIntensitiveHex(colorTheme, 150, true) },
+            { id: 'StatsIdade_NaoDeclarado', desc: 'Nenhum', valor: naoDeclarado, cor: colorItem },
+        ];
+
+        var data = google.visualization.arrayToDataTable([
+            ["Idades", "", { role: "style" }],
+            [idades[0].desc, idades[0].valor, idades[0].cor],
+            [idades[1].desc, idades[1].valor, idades[1].cor],
+            [idades[2].desc, idades[2].valor, idades[2].cor],
+            [idades[3].desc, idades[3].valor, idades[3].cor],
+            [idades[4].desc, idades[4].valor, idades[4].cor],
+            [idades[5].desc, idades[5].valor, idades[5].cor]
+        ]);
+
+        var view = new google.visualization.DataView(data);
+
+        var options = {
+            width: 600,
+            left: 0,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            chartArea: { width: '80%' },
+            tooltip: { isHtml: true },
+            fontSize: 12,
+            hAxis: { textStyle: { color: fontColor } },
+            vAxis: { textStyle: { color: fontColor } }
+        };
+        var chart = new google.visualization.ColumnChart(divGrafico);
+        chart.draw(view, options);
+        setIconColor(idades);
+    }
+
+    function estadoCivil() {
+        var divGrafico = document.getElementById('estadoCivil--grafico');
+        var casado = parseInt(document.getElementById('StatsEstadoCivil_Casado_Quantidade').value);
+        var solteiro = parseInt(document.getElementById('StatsEstadoCivil_Solteiro_Quantidade').value);
+        var divorciado = parseInt(document.getElementById('StatsEstadoCivil_Divorciado_Quantidade').value);
+        var viuvo = parseInt(document.getElementById('StatsEstadoCivil_Viuvo_Quantidade').value);
+        var naoDeclarado = parseInt(document.getElementById('StatsEstadoCivil_NaoDeclarado_Quantidade').value);
+
+        var estadoCivil = [
+            { id: 'StatsEstadoCivil_Casado', desc: 'Casado', valor: casado, cor: colorTheme },
+            { id: 'StatsEstadoCivil_Solteiro', desc: 'Solteiro', valor: solteiro, cor: changeColorIntensitiveHex(colorTheme, 100, true) },
+            { id: 'StatsEstadoCivil_Divorciado', desc: 'Divorciado', valor: divorciado, cor: changeColorIntensitiveHex(colorTheme, 100, false) },
+            { id: 'StatsEstadoCivil_Viuvo', desc: 'Viúvo', valor: viuvo, cor: changeColorIntensitiveHex(colorTheme, 150, false) },
+            { id: 'StatsEstadoCivil_NaoDeclarado', desc: 'Nenhum', valor: naoDeclarado, cor: colorItem },
+        ];
+
+        generateChartPie(estadoCivil, divGrafico, true);
+    }
+
+    function getEstados() {
+        new Promise(function(resolve, reject) {
+            $.ajax({
+                url: '/Inicio/GetEstados',
+                type: 'GET',
+                dataType: 'json'
+            }).done((response) => {
+                google.charts.setOnLoadCallback(estados(response.estados));
+            }).fail((error) => {
+                if (error.status == 403)
+                    modalClass.OpenModal('mensagem', error.responseText);
+            })
+        })
+    }
+
+    function getColorMedia(quantidade, medias) {
+        var valorMediaMaior = medias.find(x => x.id == "estados_media_maior");
+        var valorMedia = medias.find(x => x.id == "estados_media");
+        var valorMediaMenor = medias.find(x => x.id == "estados_media_menor");
+
+        if (quantidade > 0 && quantidade <= valorMediaMenor.valor)
+            return valorMediaMenor.cor;
+        if (quantidade > valorMediaMenor.valor && quantidade <= valorMedia.valor)
+            return valorMedia.cor;
+        if (quantidade > valorMedia.valor && quantidade <= valorMediaMaior.valor)
+            return valorMediaMaior.cor;
+
+        return colorItem;
+    }
+
+    function estados(estados) {
+        var divGrafico = document.getElementById('estados--grafico');
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'State');
+        data.addColumn('number', 'Quantidade');
+
+        var estadosDesc = [
+            { id: 'estados_declarados', desc: 'Quantidade', valor: 0, cor: colorTheme },
+        ];
+
+        if (estados != null) {
+            estados.forEach(e => {
+                data.addRow([`${e.estadoNome}`, e.quantidade])
+            })
+        }
+
+        var options = {
+            region: 'BR',
+            resolution: 'provinces',
+            width: '100%',
+            height: '100%',
+            colorAxis: { colors: [colorTheme] },
+            datalessRegionColor: colorItem,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            tooltip: { isHtml: true },
+        };
+
+        var chart = new google.visualization.GeoChart(divGrafico);
+        chart.draw(data, options);
+        setIconColor(estadosDesc);
+    };
+
+    function generateChartPie(obj, divGrafico, removeStroke) {
+        var colors = [];
+
+        obj.forEach(r => {
+            colors.push(r.cor);
+        })
+
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Topping');
+        data.addColumn('number', 'Slices');
+        obj.forEach(r => {
+            data.addRow([r.desc, r.valor])
+        })
+
+        var options = {
+            width: 250,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            colors: colors,
+            chartArea: { width: '80%', height: '80%' },
+            pieSliceText: 'none',
+            tooltip: { isHtml: true },
+            fontSize: 12,
+        };
+        var chart = new google.visualization.PieChart(divGrafico);
+
+        if (removeStroke)
+            setHoverStroke(divGrafico, chart, colorTheme);
+
+        chart.draw(data, options);
+        setIconColor(obj);
+    }
+
+    function periodoChange() {
+        var updateOption = document.getElementById('periodo__cadastros--grafico');
+
+        updateOption.addEventListener("change", (e) => {
+            var meses = parseInt(updateOption.value);
+            updatePeriodo(meses);
+        })
+    }
+
+    function updatePeriodo(meses) {
+        $.ajax({
+            url: '/Inicio/AtualizaPeriodo',
+            type: 'POST',
+            data: { meses: meses },
+            dataType: 'json'
+        }).done((response) => {
+            google.charts.setOnLoadCallback(periodo(response, meses));
+        }).fail((e) => {
+            if (error.status == 403)
+                modalClass.OpenModal('mensagem', error.responseText);
+            else
+                modalClass.OpenModal('mensagem', "Falha ao carregar gráfico!");
+        });
+    }
+
+    function periodo(response, meses) {
+        var divGrafico = document.getElementById('cadastros--grafico');
+        var data = new google.visualization.DataTable();
+        data.addColumn('string', 'Ano');
+        data.addColumn('number', 'Quantidade');
+        response.forEach(m => {
+            data.addRow([m.mes + "/" + m.ano, m.cadastrosPeriodo.quantidade])
+        })
+
+        var width = 600;
+        switch (meses) {
+            case 12:
+                width = 1000;
+                break;
+            case 24:
+                width = 2000;
+                break;
+            case 36:
+                width = 3000;
+                break;
+            default:
+                break;
+        }
+
+        var options = {
+            width: width,
+            backgroundColor: 'transparent',
+            legend: 'none',
+            chartArea: { height: '60%' },
+            tooltip: { isHtml: true },
+            fontSize: 12,
+            lineWidth: 2,
+            pointSize: 7,
+            colors: [colorTheme],
+            areaOpacity: .35,
+            hAxis: { textStyle: { color: fontColor }, title: 'Ano', titleColor: fontColor },
+            vAxis: {
+                minValue: 0, textStyle: { color: fontColor }, gridlines: {
+                    count: 5,
+                }, title: 'Quantidade', titleColor: fontColor
+            }
+        };
+
+        var chart = new google.visualization.AreaChart(divGrafico);
+        chart.draw(data, options);
+    }
+
+    function UpdateCharts() {
+        google.charts.setOnLoadCallback(meta);
+        google.charts.setOnLoadCallback(genero);
+        google.charts.setOnLoadCallback(renda);
+        google.charts.setOnLoadCallback(fgts);
+        google.charts.setOnLoadCallback(idade);
+        google.charts.setOnLoadCallback(estadoCivil);
+        updatePeriodo(3);
+        getEstados();
+    }
+
+    google.charts.load('current', { 'packages': ['geochart'], 'mapsApiKey': 'AIzaSyD-9tSrke72PouQMnMX-a7eZSW0jkFMBWY' });
+    google.charts.load('current', { 'packages': ['corechart'] });
+    window.addEventListener("load", (e) => {
+        UpdateCharts();
+        periodoChange();
+    })
+</script>

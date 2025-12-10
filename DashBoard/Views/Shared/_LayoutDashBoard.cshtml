@@ -1,0 +1,118 @@
+﻿@using DashBoard.Models.Enums;
+@using DashBoard.Services
+@using System.Security.Claims
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<meta charset="utf-8" />
+	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<title>@ViewData["Title"] - DashBoard Panel</title>
+	<script src="https://kit.fontawesome.com/c9d60ed44d.js" crossorigin="anonymous"></script>
+	<link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Poppins:200,400,700,900" />
+	<link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+	<link rel="stylesheet" href="~/css/dashboardPanels/dashboardmenu.css" asp-append-version="true" />
+	<asp:ContentPlaceHolder runat="server" ID="Inicio"></asp:ContentPlaceHolder>
+	<asp:ContentPlaceHolder runat="server" ID="Tabelas"></asp:ContentPlaceHolder>
+	<asp:ContentPlaceHolder runat="server" ID="Relatorios"></asp:ContentPlaceHolder>
+	<asp:ContentPlaceHolder runat="server" ID="EnviarEmails"></asp:ContentPlaceHolder>
+	<asp:ContentPlaceHolder runat="server" ID="Configs"></asp:ContentPlaceHolder>
+	<asp:ContentPlaceHolder runat="server" ID="Sistema"></asp:ContentPlaceHolder>
+</head>
+@{
+	var matricula = User.FindFirst("Matricula")?.Value;
+	var role = User.FindFirst(ClaimTypes.Role)?.Value;
+	var userName = User.Identity?.Name;
+	var tema = User.FindFirst("Tema")?.Value;
+	var aviso = User.FindFirst("Aviso")?.Value;
+	var permissoes = Context.Session.Get<List<Permissoes>>("PermissoesCache") != null ? Context.Session.Get<List<Permissoes>>("PermissoesCache")! : new List<Permissoes>();
+}
+<body id="@tema">
+	<script src="~/lib/jquery/dist/jquery.min.js"></script>
+	@Html.RenderUnobtrusiveAjaxScript()
+	<span class="avisoSession" data-hidden="true">@aviso</span>
+	<header class="dash__menu" aria-expanded="true">
+		<div class="dash__user">
+			<div class="user__img user__img--config"></div>
+			<div class="user__dados">
+				<span class="user__nome">@userName</span><br>
+				<span class="user__matricula">Matrícula: @matricula</span>
+			</div>
+		</div>
+		<nav class="dash__nav">
+			<button class="nav__toggle" aria-label="Menu" aria-controls="primary-navgation" aria-expanded="false">
+				<span class="escondido-visual">Menu</span>
+				<div class="nav__hamburger">
+					<svg class="hamburguer__svg" width="83" height="69" viewBox="0 0 83 69" fill="none"
+						 xmlns="http://www.w3.org/2000/svg">
+						<rect class="hamburguer__line hamburguer__line--top" width="83" height="11" rx="5.5" />
+						<rect class="hamburguer__line hamburguer__line--middle" y="29" width="83" height="11"
+							  rx="5.5" />
+
+						<rect class="hamburguer__line hamburguer__line--bottom" y="58" width="83" height="11"
+							  rx="5.5" />
+					</svg>
+				</div>
+			</button>
+			<ul data-state="closed" class="nav__list">
+				@{
+					if (permissoes.Any(p => p.Atividade == Atividade.Inicio && p.Visualizar))
+					{
+						<li>
+							<a class="nav__item" asp-action="Index" asp-controller="Inicio">
+								<i class="nav__ico fa-solid fa-house"></i><span>Início</span>
+							</a>
+						</li>
+					}
+					if (permissoes.Any(p => p.Atividade == Atividade.Tabelas && p.Visualizar))
+					{
+						<li>
+							<a class="nav__item" asp-action="Index" asp-controller="Tabela">
+								<i class="nav__ico fa-solid fa-database"></i><span>Tabelas</span>
+							</a>
+						</li>
+					}
+					if (permissoes.Any(p => p.Atividade == Atividade.Emails && p.Visualizar))
+					{
+						<li>
+							<a class="nav__item" asp-action="Index" asp-controller="Email">
+								<i class="nav__ico fa-solid fa-envelope"></i><span>Enviar E-mails</span>
+							</a>
+						</li>
+					}
+					if (permissoes.Any(p => p.Atividade == Atividade.Configs && p.Visualizar))
+					{
+						<li>
+							<a class="nav__item" asp-action="Index" asp-controller="Configs">
+								<i class="nav__ico fa-solid fa-gear"></i><span>Configurações</span>
+							</a>
+						</li>
+					}
+					if (permissoes.Any(p => p.Atividade == Atividade.Configs && p.Visualizar) && role == "Master")
+					{
+						<li>
+							<a class="nav__item" asp-action="Index" asp-controller="Sistema">
+								<i class="nav__ico fa-solid fa-sliders"></i><span>Sistema</span>
+							</a>
+						</li>
+					}
+				}
+				<li>
+					<a class="nav__item" asp-action="Sair" asp-controller="Login">
+						<i class="nav__ico fa-solid fa-square-xmark"></i><span>Sair</span>
+					</a>
+				</li>
+			</ul>
+		</nav>
+		<button class="dash__menu--action">
+			<i class="dash__menu--expand fa-solid fa-chevron-left"></i>
+		</button>
+	</header>
+	<partial name="modal" />
+	<main role="main" class="dash__conteudo">
+		@RenderBody()
+	</main>
+	<script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+	<script type="module" src="~/js/dashboardPanels/dashboardmenu.js" asp-append-version="true"></script>
+</body>
+</html>

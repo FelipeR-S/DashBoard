@@ -1,0 +1,110 @@
+﻿@using DashBoard.Services
+@using DashBoard.Models.Enums;
+@model List<Cliente>
+
+<table class="tabela-fill">
+	<thead class="tabela-head">
+		<tr class="tabela-row">
+			<th class="tabela-head-item">
+				<input type="checkbox" name="select-data-tabela" id="checkbox-master" class="tabela-checkbox" onclick="rows.SelectAllPage(this)">
+			</th>
+			<th class="tabela-head-item">Nome</th>
+			<th class="tabela-head-item">Email</th>
+			<th class="tabela-head-item">Telefone</th>
+			<th class="tabela-head-item">Nascimento</th>
+			<th class="tabela-head-item">Bairro</th>
+			<th class="tabela-head-item">Cidade</th>
+			<th class="tabela-head-item">UF</th>
+			<th class="tabela-head-item">Renda Média</th>
+			<th class="tabela-head-item">FGTS</th>
+			<th class="tabela-head-item">Gênero</th>
+			<th class="tabela-head-item">Estado Civil</th>
+			<th class="tabela-head-item">Filhos</th>
+			<th class="tabela-head-item">Cadastro</th>
+			<th class="tabela-head-item">Envios</th>
+		</tr>
+	</thead>
+	<tbody class="tabela-hover">
+		@{
+			var contador = 0;
+			if (@Model?.Any() == true)
+			{
+				foreach (var cliente in @Model)
+				{
+					<tr class="tabela-row" >
+						@{
+							var nome = !string.IsNullOrEmpty(cliente.Nome) ? cliente.Nome : "-";
+							var email = !string.IsNullOrEmpty(cliente.Email) ? cliente.Email : "-";
+							var telefone = !string.IsNullOrEmpty(cliente.Telefone) ? cliente.Telefone : "-";
+							var nascimento = cliente.Nascimento.HasValue ? cliente.Nascimento.Value.ToString("dd/MM/yyyy") : "-";
+							var bairro = !string.IsNullOrEmpty(cliente.Bairro) ? cliente.Bairro : "-";
+
+							var cidade = "-";
+							var cidadeLista = CacheSystem.Cidades!.FirstOrDefault(x => x.Id == cliente.Cidade.GetValueOrDefault());
+							if (cidadeLista is not null)
+								cidade = cidadeLista.CidadeNome;
+
+							var estado = "-";
+							var estadoLista = CacheSystem.Estados!.FirstOrDefault(x => x.Id == cliente.Estado.GetValueOrDefault());
+							if (estadoLista is not null)
+								estado = estadoLista.EstadoNome;
+
+							var renda = EnumExtension.GetEnumMemberValue((Renda)cliente.Renda);
+							var fgts = cliente.FGTS.HasValue ? (cliente.FGTS.Value ? "Possui" : "Não Possui") : "-";
+							var genero = EnumExtension.GetEnumMemberValue((Genero)cliente.Genero);
+							var estadoCivil = EnumExtension.GetEnumMemberValue((EstadoCivil)cliente.EstadoCivil);
+							var Filhos = EnumExtension.GetEnumMemberValue((Filhos)cliente.Filhos);
+						}
+						<td class="tabela-data">
+							<input type="checkbox" name="select-data-tabela" class="tabela-checkbox tabela-checkbox-dados">
+							@Html.Hidden($"TelefoneCliente_{contador}", cliente.Telefone, new { @class = "telefone-identity" })
+							@Html.Hidden($"EmailCliente_{contador}", cliente.Email, new { @class = "email-identity" })
+							<div class="mobile-row">
+								<span>@nome</span>
+								<button class="hide-rows-btn" data-open="false" onclick="rows.BtnDataClick(this);">
+									<i class="tabela--ico fa-solid fa-chevron-down"></i>
+								</button>
+							</div>
+							<div class="mobile-dados" data-hidden="true">
+								<p><b>E-mail: </b>@email</p>
+								<p><b>Telefone: </b>@telefone</p>
+								<p><b>Nascimento: </b>@nascimento</p>
+								<p><b>Bairro: </b>@bairro</p>
+								<p><b>Cidade: </b>@cidade</p>
+								<p><b>Estado: </b>@estado</p>
+								<p><b>Renda: </b>@renda</p>
+								<p><b>FGTS: </b>@fgts</p>
+								<p><b>Gênero: </b>@genero</p>
+								<p><b>Estado Civil: </b>@estadoCivil</p>
+								<p><b>Filhos: </b>@Filhos</p>
+								<p><b>Cadastrado em: </b>@cliente.DataCadastro.ToString("dd/MM/yyyy")</p>
+								<p><b>Quantidade de Envios: </b>@cliente.QuantidadeEnvios</p>
+							</div>
+						</td>
+						<td class="tabela-data desktop-row">@nome</td>
+						<td class="tabela-data desktop-row">@email</td>
+						<td class="tabela-data desktop-row">@telefone</td>
+						<td class="tabela-data desktop-row">@nascimento</td>
+						<td class="tabela-data desktop-row">@bairro</td>
+						<td class="tabela-data desktop-row">@cidade</td>
+						<td class="tabela-data desktop-row">@estado</td>
+						<td class="tabela-data desktop-row">@renda</td>
+						<td class="tabela-data desktop-row">@fgts</td>
+						<td class="tabela-data desktop-row">@genero</td>
+						<td class="tabela-data desktop-row">@estadoCivil</td>
+						<td class="tabela-data desktop-row">@Filhos</td>
+						<td class="tabela-data desktop-row">@cliente.DataCadastro.ToString("dd/MM/yyyy")</td>
+						<td class="tabela-data desktop-row">@cliente.QuantidadeEnvios</td>
+						@{
+							contador++;
+						}
+					</tr>
+				}
+			}
+			else
+			{
+				<tr class="tabela-row" data-hidden="false"><td class="tabela-data" style="text-align: left;" colspan="15">Sem registros...</td></tr>
+			}
+		}
+	</tbody>
+</table>

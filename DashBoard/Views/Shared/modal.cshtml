@@ -1,0 +1,71 @@
+﻿<footer>
+	<dialog class="layout__dialog layout__dialog--backdrop">
+		<div data-hidden="true" class="dialog__all-images">
+			<div class="all-images--itens"></div>
+			<div class="all-images--btn-div">
+				<button class="dialog--btn-action all-images--btn-back">Voltar</button>
+				<button class="dialog--btn-action all-images--btn-delete">Deletar</button>
+				<button class="dialog--btn-action all-images--btn-select">Selecionar</button>
+			</div>
+		</div>
+		<div data-hidden="true" class="dialog__upload--img">
+			<div class="dialog__img-input--show">
+				<label for="imgName">Nome da imagem:</label><input class="upload--input" type="text" name="imgName"
+													   maxlength="20" minlength="5"><label for="imgLink">Inserir link:</label><input class="upload--input" type="text" name="imgLink">
+			</div>
+			<button class="dialog--btn-action upload--btn-up">Escolher arquivo</button>
+			<button class="dialog--btn-action upload--btn-save">Salvar imagem</button>
+		</div>
+		<div data-hidden="true" class="dialog__img--select">
+			<div data-hidden="true" class="dialog__img--select-ajusta">
+				<div id="background-size">
+					<span>Preenchimento da Imagem</span><br>
+					<input name="size" type="radio" value="cover"><span>Preencher</span><br>
+					<input name="size" type="radio" value="contain"><span>Conter</span>
+				</div>
+				<div id="background-position">
+					<span>Posição da Imagem</span><br>
+					<input name="position" type="radio" value="top"><span>Cima</span><br>
+					<input name="position" type="radio" value="right"><span>Direita</span><br>
+					<input name="position" type="radio" value="bottom"><span>Baixo</span><br>
+					<input name="position" type="radio" value="left"><span>Esquerda</span>
+				</div>
+				<button class="dialog--btn-action select-ajusta--btn-back">Voltar</button>
+			</div>
+			<button data-hidden="false" class="dialog--btn-action dialog__img--select--btn-ajusta">
+				Ajustar
+				Imagem
+			</button>
+			<button data-hidden="false" class="dialog--btn-action dialog__img--select--btn-seleciona">
+				Selecionar
+				Imagens
+			</button>
+			<button data-hidden="false" class="dialog--btn-action dialog__img--select--btn-insere">
+				Inserir
+				Imagem
+			</button>
+		</div>
+		<div class="layout__dialog--load" data-hidden="true">
+			<div class="building-blocks">
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+				<div></div>
+			</div>
+			<div>
+				<p class="dialog--msg-load"></p>
+			</div>
+			<button data-hidden="true" class="modal-cancel-request">Cancelar</button>
+		</div>
+		<div class="layout__dialog--empty" data-hidden="true">
+		</div>
+		<div class="layout__dialog--msg" data-hidden="true">
+			<p class="dialog--msg"></p>
+		</div>
+		<button data-hidden="false" class="layout__dialog--btn-fechar">Fechar</button>
+	</dialog>
+</footer>
+<partial name="fn.modal" />

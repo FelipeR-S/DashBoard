@@ -1,0 +1,237 @@
+﻿<script>
+    modalClass.FechaModalBtn();
+    const System = {
+        openPanel: function (btn, panelHideId, panelShowId) {
+            $(btn).attr('data-hidden', true);
+            $(panelHideId).attr('data-hidden', true);
+            $(panelShowId).attr('data-hidden', false);
+        },
+        returnPanel: function (panelHideId, panelShowId, btnShowId){
+            System.cleanForm();
+            $(btnShowId).attr('data-hidden', false);
+            $(panelHideId).attr('data-hidden', true);
+            $(panelShowId).attr('data-hidden', false);
+        },
+        cleanForm: function (){
+            $('#NewUserForm').find('input[type="text"], input[type="password"], input[type="email"], input[type="tel"], textarea').val('');
+            $('#FormRole').find('input[type="text"], input[type="password"], input[type="email"], input[type="tel"], textarea').val('');
+            $('#NewUserForm').find('select').each(function(){
+                var first = $(this).find('option').first();
+                if (first.length) {
+                  $(this).val(first.val());
+                }
+            });
+            $('#FormRole').find('input[type="checkbox"], input[type="radio"]').prop('checked', false);
+            $('#NewUserForm').find('input[type="checkbox"], input[type="radio"]').prop('checked', false);
+            $('#NewUserForm input').each((i, x) => System.Default(x));
+            $('#FormRole #RoleId').val('');
+        },
+        ComparaSenha: function (input, idPrincipal) {
+            if ($(input).val() == $(idPrincipal).val())
+                System.Correto(input);
+            else
+                System.Incorreto(input);
+        },
+        VerificaInput: function (i) {
+            if (i.pattern != null && i.pattern != "") {
+                let regex = new RegExp(i.pattern);
+                if (!regex.test(i.value))
+                    System.Incorreto(i);
+                else
+                    System.Correto(i);
+            }
+        },
+        Default: function (currentInput){
+            currentInput.classList.remove('input-incorreto');
+            currentInput.classList.remove('input-correto');
+            let parent = currentInput.parentElement;
+            let msg = parent.querySelector('.config--input-error');
+            let ico = parent.querySelector('.config-ico');
+            if (msg) msg.setAttribute('data-hidden', true);
+            if (ico != null) parent.removeChild(ico);
+        },
+        Incorreto: function (currentInput) {
+            currentInput.classList.add('input-incorreto')
+            currentInput.classList.remove('input-correto')
+            let parent = currentInput.parentElement;
+            let incorrect = System.CreateMark(false);
+            let ico = parent.querySelector('.config-ico');
+            let msg = parent.querySelector('.config--input-error');
+            msg.setAttribute('data-hidden', false);
+            if (ico != null) parent.removeChild(ico);
+            parent.appendChild(incorrect);
+        },
+        Correto: function (currentInput) {
+            currentInput.classList.remove('input-incorreto')
+            currentInput.classList.add('input-correto')
+            let parent = currentInput.parentElement;
+            let correct = System.CreateMark(true);
+            let ico = parent.querySelector('.config-ico');
+            let msg = parent.querySelector('.config--input-error');
+            msg.setAttribute('data-hidden', true);
+            if (ico != null) parent.removeChild(ico);
+            parent.appendChild(correct);
+        },
+        CreateMark: function (correct) {
+            let mark = document.createElement('div');
+            mark.classList.add('config-ico');
+            if (correct) mark.innerHTML = '<i class="fa-solid fa-check" style="color: limegreen"></i>';
+            else mark.innerHTML = '<i class="fa-solid fa-xmark" style="color: red"></i>';
+            return mark;
+        },
+        BtnMostraSenha: function (btn) {
+            let isPressed = (btn.ariaPressed === 'true');
+            let input = btn.parentElement.querySelector('.config--input');
+            let icos = Array.from(btn.querySelectorAll('.config--ico-senha'));
+            if (isPressed) {
+                icos[0].setAttribute('data-hidden', false);
+                icos[1].setAttribute('data-hidden', true);
+                input.type = "password";
+                btn.ariaPressed = false;
+            }
+            else {
+                icos[0].setAttribute('data-hidden', true);
+                icos[1].setAttribute('data-hidden', false);
+                input.type = "text";
+                btn.ariaPressed = true;
+            }
+        },
+        returnFormUser: function (data){
+            modalClass.CloseDialog();
+            if (data.success){
+                System.cleanForm();
+                modalClass.OpenModal('mensagem', data.msg);
+                $('#panel-lista-users').html(data.lista);
+                System.returnPanel('#panel-users', '#panel-lista-users', '#btn-newuser');
+            }
+            else
+                modalClass.OpenModal('mensagem', data.msg);
+        },
+        deletaUser: function (matricula) {
+            const html = `<p>Deseja realmente excluir o cadastro?<br>A operação não poderá ser desfeita!</p><button type="button" class="btn-modal-confirmar" onclick="System.deletaUserAction(${matricula})">Confirmar</button>`
+            modalClass.OpenModal('empty', html);
+        },
+        deletaUserAction: function(matricula) {
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            modalClass.OpenModal("load", "Deletando...", true);
+            $.ajax({
+                url: '/Sistema/DeleteUser',
+                type: 'POST',
+                data: { matricula: matricula },
+                headers: headers
+            }).done((response) => {
+                modalClass.CloseDialog();
+                if (response.success){
+                    System.cleanForm();
+                    modalClass.OpenModal('mensagem', response.msg);
+                    $('#panel-lista-users').html(response.lista);
+                }
+                else
+                    modalClass.OpenModal('mensagem', response.msg);
+            }).fail((error) => {
+                if (error.status == 403)
+                    modalClass.OpenModal('mensagem', error.responseText);
+                else
+                    modalClass.OpenModal('mensagem', "Falha ao deletar usuário");
+            });
+        },
+        AlterarRole: function(select, matricula){
+            const valUpdate = $(select).val();
+            $(select).val($('#RoleId' + matricula).val());
+            const html = `<p>Deseja realmente alterar a role do user?<br>A operação podera afetar a usabilidade do usuário ou segurança do sistema!</p><button type="button" class="btn-modal-confirmar" onclick="System.AlteraRoleAction(${valUpdate}, '${matricula}')">Confirmar</button>`
+            modalClass.OpenModal('empty', html);
+        },
+        AlteraRoleAction: function(valUpdate, matricula) {
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            modalClass.OpenModal("load", "Alterando...", true);
+            $.ajax({
+                url: '/Sistema/AlteraRoleDoUsuario',
+                type: 'POST',
+                data: { matricula: matricula, roleId: valUpdate },
+                headers: headers
+            }).done((response) => {
+                System.returnFormUser(response);
+            }).fail((error) => {
+                if (error.status == 403)
+                    modalClass.OpenModal('mensagem', error.responseText);
+                else
+                    modalClass.OpenModal('mensagem', "Falha ao alterar role de usuário");
+            });
+        },
+        BuscarRole: function (roleId){
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            modalClass.OpenModal("load", "Buscando...", true);
+            $.ajax({
+                url: '/Sistema/BuscarRole',
+                type: 'POST',
+                data: { id: roleId },
+                headers: headers
+            }).done((response) => {
+                modalClass.CloseDialog();
+                if (response.success)
+                {
+                    $('#panel-roles').html(response.html);
+                    System.openPanel('#btn-role', '#panel-lista-roles', '#panel-roles');
+                }
+                else
+                    modalClass.OpenModal('mensagem', response.msg);
+            }).fail((error) => {
+                if (error.status == 403)
+                    modalClass.OpenModal('mensagem', error.responseText);
+                else
+                    modalClass.OpenModal('mensagem', "Falha ao buscar role");
+            });
+        },
+        returnFormRole: function (data) {
+            modalClass.CloseDialog();
+            if (data.success) {
+                System.cleanForm();
+                modalClass.OpenModal('mensagem', data.msg);
+                $('#panel-lista-users').html(data.listaUser);
+                $('#panel-lista-roles').html(data.listaRole);
+                $('#panel-users').html(data.formUser);
+                System.returnPanel('#panel-roles', '#panel-lista-roles', '#btn-role');
+            }
+            else
+                modalClass.OpenModal('mensagem', data.msg);
+        },
+        ExcluirRole: function (roleId) {
+            const html = `<p>Deseja realmente excluir a role?<br>A operação não poderá ser desfeita!</p><button type="button" class="btn-modal-confirmar" onclick="System.ExcluirRoleAction(${roleId})">Confirmar</button>`
+            modalClass.OpenModal('empty', html);
+        },
+        ExcluirRoleAction: function (roleId) {
+            let token = $('[name=__RequestVerificationToken]').val();
+            let headers = {};
+            headers['RequestVerificationToken'] = token;
+            modalClass.OpenModal("load", "Deletando...", true);
+            $.ajax({
+                url: '/Sistema/DeleteRole',
+                type: 'POST',
+                data: { id: roleId },
+                headers: headers
+            }).done((response) => {
+                modalClass.CloseDialog();
+                if (response.success) {
+                    System.cleanForm();
+                    modalClass.OpenModal('mensagem', response.msg);
+                    $('#panel-lista-roles').html(response.listaRole);
+                    $('#panel-lista-users').html(response.listaUser);
+                    $('#panel-users').html(response.formUser);
+                }
+                else
+                    modalClass.OpenModal('mensagem', response.msg);
+            }).fail((error) => {
+                if (error.status == 403)
+                    modalClass.OpenModal('mensagem', error.responseText);
+                else
+                    modalClass.OpenModal('mensagem', "Falha ao deletar role");
+            });
+        }
+    }
+</script>

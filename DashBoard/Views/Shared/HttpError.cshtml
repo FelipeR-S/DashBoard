@@ -1,0 +1,17 @@
+@{
+    ViewData["Title"] = "LandingPageError";
+    Layout = "_LayoutLandingpage";
+}
+@{
+    var mensagem = ViewData["MessageError"];
+    var codigo = ViewData["codeError"];
+}
+
+<div class="http-error">
+    <div class="error-content">
+        <p class="number-error"><span data-hidden="true">@codigo</span>@codigo<span data-hidden="true">@codigo</span></p>
+        <p class="text">@mensagem</p>
+        <a asp-action="Index" asp-controller="LandingPage" >Voltar para landingPage</a>
+        <a asp-action="Index" asp-controller="login" >Voltar para o login</a>
+    </div>
+</div>

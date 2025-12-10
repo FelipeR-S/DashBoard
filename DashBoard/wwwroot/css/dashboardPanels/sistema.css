@@ -1,0 +1,107 @@
+@import "./dashboardmenu.css";
+
+.display__layout {
+    padding: 2rem;
+    min-height: max-content !important;
+}
+
+.panel-list{
+    max-height: 50vh;
+    overflow-y: auto;
+    border: 1px solid var(--background);
+    border-radius: .25rem;
+    background: var(--background);
+}
+
+.emails__layout {
+    padding: .5rem;
+    margin: .5rem;
+    background: var(--background-item);
+}
+
+.emails__layout:hover{
+    background: rgba(255, 255, 255, .25);
+}
+
+.config--button--submit{
+    margin-block: 1rem;
+}
+
+.config--input{
+    color: var(--font-color);
+}
+
+.config--input option{
+    color: var(--background);
+}
+
+.buttons--actions__btn{
+    margin-bottom: .5rem;
+}
+
+.emails__assunto button{
+    margin: 0 !important;
+}
+
+.btn-modal-confirmar {
+    width: 15rem;
+    height: 2.5rem;
+    border-radius: 2.5rem;
+    font-weight: 700;
+    transition: all 0.5s ease-in-out;
+    border: 0.2rem limegreen solid;
+    color: limegreen;
+    margin-top: 1rem;
+    background: transparent;
+}
+
+    .btn-modal-confirmar:focus,
+    .btn-modal-confirmar:active,
+    .btn-modal-confirmar:hover {
+        background-color: limegreen;
+        color: white;
+        outline: none;
+    }
+
+.input-correto{
+    border-color: limegreen;
+    color: limegreen;
+}
+
+.input-incorreto {
+    border-color: crimson;
+    color: crimson;
+}
+
+.grid-table {
+    display: grid;
+    width: 100%;
+    grid-template-columns: 1fr repeat(4, min-content);
+    gap: 0; 
+}
+
+    .grid-table .header{
+        background-color: var(--theme-color);
+    }
+
+    .grid-table .cell {
+        border-bottom: 1px solid var(--font-color);
+    }
+
+    .grid-table .header,
+    .grid-table .cell {
+        padding: 8px 15px;
+        white-space: nowrap;
+    }
+
+        .grid-table > * {
+            min-width: 0;
+        }
+    .grid-table .cell.celaligncenter {
+        text-align: center;
+    }
+@media (min-width: 600px) {
+    #FormRole .config--input-div {
+        width: 450px;
+    }
+}

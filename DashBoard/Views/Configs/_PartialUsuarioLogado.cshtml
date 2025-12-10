@@ -1,0 +1,167 @@
+﻿@model User
+@{
+    var permissao = ViewData["Permissao"] as Permissoes;
+}
+<div class="configs--panels configs__user-panel--title">
+    <h2 class="user-panel--title">Atualizar Usuário</h2>
+    <button type="button" class="configs--panels-btn user-panel--btn" aria-checked="false" onclick="Configs.ShowPanel(this, 'panel-user-dados')">
+        <i class="fa-solid fa-chevron-down"></i>
+    </button>
+</div>
+<div class="user-panel" data-hidden="true" id="panel-user-dados">
+    <br>
+    <div class="config--panel-img">
+        <div class="config--img-user">
+            @if (permissao is not null && permissao.Editar)
+            {
+                <button type="button" class="config--add-image" onclick="Configs.Change()">
+                    <i class="fa-solid fa-camera"></i>
+                </button>
+            }
+        </div>
+        <button type="button" class="config--info-img" onclick="Configs.Info()">Info</button>
+    </div>
+
+
+    @using (Html.AjaxBeginForm("UpdateUser", "Configs", new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnBegin = "modalClass.OpenModal('load', 'Alterando...')",
+        OnSuccess = "modalClass.OpenModal('mensagem', data.msg);",
+        OnFailure = "modalClass.OpenModal('mensagem', 'Erro ao atualizar dados de usuário')"
+    }, new { enctype = "multipart/form-data", id = "UpdateUserForm", @class = "configs-form updateUser" }))
+    {
+        @Html.HiddenFor(m => m.Matricula)
+        @Html.HiddenFor(m => m.RoleId)
+        <label for="nomeNew">Matricula:</label>
+        <p>@Model.Matricula</p>
+        <label for="nomeNew">Nome:</label>
+        <div class="config--input-div">
+            @Html.TextBoxFor(m => m.Nome, new
+            {
+                @class = "config--input",
+                type = "text",
+                pattern = "^([^\\s][a-zA-ZÀ-ú]{2,}[\\s]?){1,5}[^\\s]$",
+                onkeyup = "Configs.VerificaInput(this)",
+                autocomplete = "name",
+                maxlength = "40",
+                required = "required"
+                })
+        <span data-hidden="true" class="config--input-error text-danger">
+            Nome deve conter apenas letras e ter entre 5 e 40 caracteres!
+        </span>
+    </div>
+    <label for="usuarioNew">Usuário:*</label>
+    <div class="config--input-div">
+        @Html.TextBoxFor(m  => m.Usuario, new
+                {
+                @class = "config--input",
+                type = "text",
+                pattern = "^[a-zA-Z]{5,15}$",
+                onkeyup = "Configs.VerificaInput(this)",
+                autocomplete = "username",
+                minlength = "5",
+                maxlength = "15",
+                required = "required"
+                })
+        <span data-hidden="true" class="config--input-error text-danger">
+            Usuário deve conter apenas letras e ter entre 5 e 15 caracteres!
+        </span>
+    </div>
+    <label for="emailNew">Email:*</label>
+    <div class="config--input-div">
+        @Html.TextBoxFor(m => m.Email, new
+                {
+                @class = "config--input",
+                type = "email",
+                autocomplete = "email",
+                pattern = "^([a-z0-9]{1,20}[._\\-]?){1,5}@([a-z0-9]{1,20}[.]?){2,5}$",
+                onkeyup = "Configs.VerificaInput(this)",
+                maxlength = "40",
+                required = "required"
+                })
+        <span data-hidden="true" class="config--input-error text-danger">
+            Email deve obedecer ao seguinte formato: nomeemail@email.com.br
+        </span>
+    </div>
+    <label for="telefoneNew">Telefone:</label>
+    <div class="config--input-div">
+        @Html.TextBoxFor(m => m.Telefone, new
+                {
+                @class = "config--input",
+                type = "tel",
+                autocomplete = "tel",
+                pattern = "^[\\(]?[0-9]{2}[\\)]?[\\s]?[0-9]{4,5}[\\-\\s]?[0-9]{4}$",
+                onkeyup = "Configs.VerificaInput(this)"
+                })
+        <span data-hidden="true" class="config--input-error text-danger">
+            Telefone deve obedecer ao seguinte formato: DD 000000000
+        </span>
+    </div>
+    <label for="enderecoNew">Endereço:</label>
+    <div class="config--input-div">
+        @Html.TextBoxFor(m => m.Endereco, new { @class = "config--input" })
+    </div>
+        @if (permissao is not null && permissao.Editar)
+        {
+            <button type="submit" class="config--button--submit">Atualizar</button>
+        }
+        }
+    @using (Html.AjaxBeginForm("UpdateSenha", "Configs", new AjaxOptions
+    {
+        HttpMethod = "POST",
+        OnBegin = "modalClass.OpenModal('load', 'Alterando...')",
+        OnSuccess = "modalClass.OpenModal('mensagem', data.msg);",
+        OnFailure = "modalClass.OpenModal('mensagem', 'Erro ao atualizar senha do usuário')"
+    }, new { enctype = "multipart/form-data", id = "UpdateSenhaForm", @class = "configs-form updateUser" }))
+    {
+        <div class="configs--panels configs__user-panel--title">
+            <h2 class="user-panel--title">Atualizar Senha</h2>
+            <button type="button" class="configs--panels-btn user-panel--btn" aria-checked="false" onclick="Configs.ShowPanel(this, 'panel-user-seha')">
+                <i class="fa-solid fa-chevron-down"></i>
+            </button>
+        </div>
+        <div class="user-panel" data-hidden="true" id="panel-user-seha">
+            <br>
+            <label for="senha-confirmNew">Senha:*</label>
+            <div class="config--input-div">
+                @Html.TextBoxFor(m => m.Senha, new
+                {
+                    @class = "config--input config--input-senha-confirm",
+                        type = "password",
+                        autocomplete = "password",
+                        pattern = "^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[^a-zA-Z0-9]).{6,}$",
+                        required = "required",
+                        onkeyup = "Configs.VerificaInput(this)"
+                        })
+            <button type="button" aria-pressed="false" class="config--mostra-senha" onclick="Configs.BtnMostraSenha(this)">
+                <i data-hidden="false" class="config--ico-senha fa-regular fa-eye"></i>
+                <i data-hidden="true" class="config--ico-senha fa-regular fa-eye-slash"></i>
+            </button>
+            <span data-hidden="true" class="config--input-error text-danger">
+                A senha deve conter no mínimo 6 caracteres, incluindo letra maiúscula, letra minúscula, número e caractere especial.
+            </span>
+        </div>
+        <label for="senhaNew">Confirme a senha:*</label>
+        <div class="config--input-div">
+            @Html.TextBoxFor(m => m.SenhaConfirmar, new
+                        {
+                    @class = "config--input config--input-senha-confirm",
+                        type = "password",
+                        autocomplete = "password",
+                        required = "required",
+                        onkeyup = "Configs.ComparaSenha(this, '#Senha')"
+                        })
+            <button type="button" aria-pressed="false" class="config--mostra-senha" onclick="Configs.BtnMostraSenha(this)">
+                <i data-hidden="false" class="config--ico-senha fa-regular fa-eye"></i>
+                <i data-hidden="true" class="config--ico-senha fa-regular fa-eye-slash"></i>
+            </button>
+            <span data-hidden="true" class="config--input-error text-danger">As senhas não correspondem!</span>
+        </div>
+            @if (permissao is not null && permissao.Editar)
+            {
+                <button type="submit" class="config--button--submit">Atualizar Senha</button>
+            }
+    </div>
+        }
+</div>

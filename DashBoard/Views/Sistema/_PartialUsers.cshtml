@@ -1,0 +1,57 @@
+﻿@model List<DashBoard.Models.User>
+@{
+    var select = (IEnumerable<SelectListItem>?)ViewData["RolesSelect"] ?? new List<SelectListItem>();
+    var permissao = ViewData["Permissao"] as Permissoes;
+}
+<div class="panel-list">
+    @if (Model?.Any() == true)
+    {
+        int count = 0;
+        foreach (var user in Model)
+        {
+            var selectUser = select
+            .Select(x => new SelectListItem
+            {
+                Text = x.Text,
+                Value = x.Value,
+                Selected = x.Value == user.RoleId.ToString()
+            }).ToList();
+            <div class="emails__layout">
+                <div class="emails__assunto"><span><b>Matrícula:&emsp;</b></span>@user.Matricula</div>
+                <div class="emails__assunto"><span><b>Username:&emsp;</b></span>@user.Usuario</div>
+                <div class="emails__assunto"><span><b>Nome:&emsp;</b></span>@user.Nome</div>
+                <div class="emails__assunto">
+                    <span><b>Role:&emsp;</b></span>
+                    @if (user.Matricula == "9999" || permissao is null || !permissao.Editar)
+                    {
+                        @(user.Role?.Nome ?? "-")
+                    }
+                    else
+                    {
+                        @Html.DropDownList("RoleIdSelect" + user.Matricula, selectUser, new { @class = "emails__select emails__options-envia", onchange = "System.AlterarRole(this, '" + user.Matricula + "')" })
+                        @Html.Hidden("RoleId" + user.Matricula, user.RoleId)
+                    }
+                </div>
+                <div class="emails__assunto">
+                    @if (user.Matricula != "9999" && permissao is not null && permissao.Excluir)
+                    {
+                        <span><b>Ações:&emsp;</b></span>
+                        <button type="button" title="Remover" class="buttons--actions__btn actions__btn--deleta" onclick="System.deletaUser(@user.Matricula)">
+                            <i class="tabela--ico tabela__panel-buttons--ico fa-solid fa-trash-can"></i>
+                            Deletar
+                        </button>
+                    }
+                </div>
+            </div>
+            count++;
+        }
+    }
+    else
+    {
+        <div class="emails__layout">
+            Sem registros...
+        </div>
+    }
+</div>
+<br>
+<p>Total de usuários: @(Model != null ? Model.Count() : 0)</p>
