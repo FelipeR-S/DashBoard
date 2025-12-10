@@ -28,7 +28,6 @@
   <ItemGroup>
     <Folder Include="Data\Migrations\" />
     <Folder Include="Migrations\" />
-    <Folder Include="gitImg\" />
     <Folder Include="Templates\" />
 	  <None Update="appsettings.Development.json">
 		  <CopyToOutputDirectory>Never</CopyToOutputDirectory>

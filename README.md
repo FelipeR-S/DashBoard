@@ -43,15 +43,15 @@ O banco de dados será criado automaticamente a partir das migrations, caso aind
 ## Funcionalidades ✨
 
 1. **Landingpage** 📝 para captura de dados com formulário.
-<p align="center"><img alt="landingpage" title="landingpage" src="./gitimg/landingpage.png"/></p>
+<p align="center"><img alt="landingpage" title="landingpage" src="./gitImg/landingpage.png"/></p>
 <br>
 
 2. **Tela de login** 🔑 para acesso à dashboard.
-<p align="center"><img alt="login" title="login" src="./gitimg/login.png"/></p>
+<p align="center"><img alt="login" title="login" src="./gitImg/login.png"/></p>
 <br>
 
 3. **Tela inicial** 📈 exibindo gráficos com os dados capturados.
-<p align="center"><img alt="inicio" title="inicio" src="./gitimg/inicio.png"/></p>
+<p align="center"><img alt="inicio" title="inicio" src="./gitImg/inicio.png"/></p>
 <br>
 
 4. **Página da tabela de dados** 📊:
@@ -61,7 +61,7 @@ O banco de dados será criado automaticamente a partir das migrations, caso aind
    * Exportação para Excel 📄
    * Remoção de registros ❌
    * Seleção de clientes para envio de e-mails ✉️
-<p align="center"><img alt="tabela" title="tabela" src="./gitimg/tabela.png"/></p>
+<p align="center"><img alt="tabela" title="tabela" src="./gitImg/tabela.png"/></p>
 <br>
 
 5. **Página de envio de e-mails** 💌:
@@ -69,20 +69,20 @@ O banco de dados será criado automaticamente a partir das migrations, caso aind
    * Criação e edição de templates
    * Envio via newsletter (apenas e-mails cadastrados)
    * Envio para clientes capturados pelo formulário
-<p align="center"><img alt="emails" title="emails" src="./gitimg/emails.png"/></p>
+<p align="center"><img alt="emails" title="emails" src="./gitImg/emails.png"/></p>
 <br>
 
 6. **Configurações de usuário** ⚙️:
 
    * Atualização de nome, e-mail, senha, tema e meta
-<p align="center"><img alt="configs" title="configs" src="./gitimg/configs.png"/></p>
+<p align="center"><img alt="configs" title="configs" src="./gitImg/configs.png"/></p>
 <br>
 
 7. **Configuração do sistema (apenas admin)** 👑:
 
    * Criação e edição de roles
    * Criação de novos usuários e alteração de roles
-<p align="center"><img alt="sistema" title="sistema" src="./gitimg/sistema.png"/></p>
+<p align="center"><img alt="sistema" title="sistema" src="./gitImg/sistema.png"/></p>
 <br>
 
 ---
